@@ -1,3 +1,4 @@
 *.pyc
-.idea/*
+project/.idea/*
 __pycache__/*
+*.xml
