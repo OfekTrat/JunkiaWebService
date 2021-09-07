@@ -30,7 +30,7 @@ class MyTestCase(unittest.TestCase):
         finding = Finding(self.GOOD_LOCATION, self.GOOD_TAGS)
 
         with self.assertRaises(AttributeError):
-            finding.location = Location(1,1)
+            finding.location = Location(1, 1)
 
         with self.assertRaises(AttributeError):
             finding.tags = ["123", "sdf"]
@@ -57,12 +57,10 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(finding.tags, self.GOOD_TAGS)
         self.assertEqual(finding.image_hash, None)
 
-
         finding2 = Finding.create_from_json(finding_as_json2)
         self.assertEqual(finding2.location, self.GOOD_LOCATION)
         self.assertEqual(finding2.tags, self.GOOD_TAGS)
         self.assertEqual(finding2.image_hash, self.IMAGE_HASH)
-
 
     def test_finding_to_dict(self):
         finding = Finding(self.GOOD_LOCATION, self.GOOD_TAGS)
