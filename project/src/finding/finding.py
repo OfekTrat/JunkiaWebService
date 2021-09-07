@@ -5,9 +5,6 @@ from src.location import Location
 
 
 class Finding:
-    LONGITUDE_RANGE = (-180, 180)
-    LATITUDE_RANGE = (-90, 90)
-
     def __init__(self, location: Location, tags: List[str], image_hash: Optional[str] = None):
         self.__finding_id = str(int(datetime.now().timestamp()))
         self.__location = location
