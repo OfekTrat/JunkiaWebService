@@ -33,10 +33,7 @@ class Location:
 
     @staticmethod
     def create_from_json(location_as_json: Dict[str, float]) -> 'Location':
-        return Location(
-            location_as_json["longitude"],
-            location_as_json["latitude"]
-        )
+        return Location(location_as_json["longitude"], location_as_json["latitude"])
 
     def __eq__(self, other: 'Location'):
         return other.longitude == self.longitude and other.latitude == self.latitude

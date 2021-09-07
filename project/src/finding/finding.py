@@ -9,7 +9,7 @@ class Finding:
     LATITUDE_RANGE = (-90, 90)
 
     def __init__(self, location: Location, tags: List[str], image_hash: Optional[str] = None):
-        self.__finding_id = datetime.now().timestamp()
+        self.__finding_id = str(int(datetime.now().timestamp()))
         self.__location = location
         self.__tags: List[str] = self.__validate_tags(tags)
         self.__image_hash: str = image_hash
@@ -35,13 +35,6 @@ class Finding:
         self.__image_hash = image_hash
 
     @staticmethod
-    def __validate_range(value: float, range: Tuple[int, int]) -> float:
-        if value < range[0] or value > range[1]:
-            raise WrongFindingInputError(f"Value {value} not in the right range {range}")
-
-        return value
-
-    @staticmethod
     def __validate_tags(tags: List[str]) -> List[str]:
         if not tags:
             raise WrongFindingInputError("Missing Tags")
@@ -56,14 +49,9 @@ class Finding:
         }
 
     @staticmethod
-    def create_from_json(finding_as_json: Dict[str, Union[str, float, List[str], Dict[str, float]]]) -> 'Finding':
+    def create_from_json(finding_as_json: Dict[str, Union[str, float, List[str], Dict[str, float], None]]) -> 'Finding':
         if "image_hash" not in finding_as_json.keys():
             finding_as_json["image_hash"] = None
 
         location = Location.create_from_json(finding_as_json["location"])
-
-        return Finding(
-            location,
-            finding_as_json["tags"],
-            finding_as_json["image_hash"]
-        )
+        return Finding(location, finding_as_json["tags"], finding_as_json["image_hash"])
