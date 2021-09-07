@@ -9,3 +9,4 @@ class User:
     follows: List[str]
     notifiable_location: Location
     notifiable_radius: int
+    last_notified: str
