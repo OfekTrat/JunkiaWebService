@@ -1,5 +1,3 @@
 
-
-
 class InvalidLocationError(Exception):
     pass

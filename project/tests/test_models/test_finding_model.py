@@ -1,5 +1,5 @@
-from src.finding import Finding, WrongFindingInputError
-from src.location import Location
+from project.src.finding import Finding, WrongFindingInputError
+from project.src.location import Location
 import unittest
 
 
@@ -24,7 +24,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_wrong_input(self):
         with self.assertRaises(WrongFindingInputError):
-            finding = Finding(self.GOOD_LOCATION, self.BAD_TAGS)
+            Finding(self.GOOD_LOCATION, self.BAD_TAGS)
 
     def test_change_attrs(self):
         finding = Finding(self.GOOD_LOCATION, self.GOOD_TAGS)
@@ -36,38 +36,48 @@ class MyTestCase(unittest.TestCase):
             finding.tags = ["123", "sdf"]
 
     def test_finding_creation_from_json(self):
-        finding_as_json = {
-            "location": {
-                "longitude": self.GOOD_LONGITUDE,
-                "latitude": self.GOOD_LATITUDE
-            },
+        simple_finding_json = {
+            "longitude": self.GOOD_LONGITUDE,
+            "latitude": self.GOOD_LATITUDE,
             "tags": self.GOOD_TAGS
         }
 
-        finding_as_json2 = {
-            "location": {
-                "longitude": self.GOOD_LONGITUDE,
-                "latitude": self.GOOD_LATITUDE
-            },
+        simple_finding_json_with_image_hash = {
+            "longitude": self.GOOD_LONGITUDE,
+            "latitude": self.GOOD_LATITUDE,
             "tags": self.GOOD_TAGS,
             "image_hash": self.IMAGE_HASH
         }
-        finding = Finding.create_from_json(finding_as_json)
+        finding_json_with_existence_id = {
+            "id": "test_id",
+            "longitude": self.GOOD_LONGITUDE,
+            "latitude": self.GOOD_LATITUDE,
+            "tags": self.GOOD_TAGS,
+            "image_hash": self.IMAGE_HASH
+        }
+
+        finding = Finding.create_from_json(simple_finding_json)
         self.assertEqual(finding.location, self.GOOD_LOCATION)
         self.assertEqual(finding.tags, self.GOOD_TAGS)
         self.assertEqual(finding.image_hash, None)
 
-        finding2 = Finding.create_from_json(finding_as_json2)
+        finding2 = Finding.create_from_json(simple_finding_json_with_image_hash)
         self.assertEqual(finding2.location, self.GOOD_LOCATION)
         self.assertEqual(finding2.tags, self.GOOD_TAGS)
         self.assertEqual(finding2.image_hash, self.IMAGE_HASH)
+
+        finding3 = Finding.create_from_json(finding_json_with_existence_id)
+        self.assertEqual(finding3.location, self.GOOD_LOCATION)
+        self.assertEqual(finding3.tags, self.GOOD_TAGS)
+        self.assertEqual(finding3.image_hash, self.IMAGE_HASH)
+        self.assertEqual(finding3.id, "test_id")
 
     def test_finding_to_dict(self):
         finding = Finding(self.GOOD_LOCATION, self.GOOD_TAGS)
         finding_as_json = finding.to_dict()
 
-        self.assertEqual(finding_as_json["location"]["longitude"], self.GOOD_LONGITUDE)
-        self.assertEqual(finding_as_json["location"]["latitude"], self.GOOD_LATITUDE)
+        self.assertEqual(finding_as_json["longitude"], self.GOOD_LONGITUDE)
+        self.assertEqual(finding_as_json["latitude"], self.GOOD_LATITUDE)
         self.assertEqual(finding_as_json["tags"], self.GOOD_TAGS)
         self.assertEqual(finding_as_json["image_hash"], None)
 

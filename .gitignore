@@ -2,3 +2,5 @@
 project/.idea/*
 __pycache__/*
 *.xml
+*.iml
+**/.pytest_cache/*

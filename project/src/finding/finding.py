@@ -1,19 +1,30 @@
 from typing import List, Tuple, Union, Dict, Optional
 from .finding_exceptions import WrongFindingInputError
 from datetime import datetime
-from src.location import Location
+from ..location import Location
 
 
 class Finding:
-    def __init__(self, location: Location, tags: List[str], image_hash: Optional[str] = None):
-        self.__finding_id = str(int(datetime.now().timestamp()))
+    def __init__(self, location: Location, tags: List[str], image_hash: Optional[str] = None,
+                 finding_id: Optional[str] = None):
+        self.__id = self.__set_id(finding_id)
         self.__location = location
         self.__tags: List[str] = self.__validate_tags(tags)
         self.__image_hash: str = image_hash
 
+    def __set_id(self, finding_id: Optional[str]) -> str:
+        if finding_id is not None:
+            return finding_id
+        else:
+            return str(int(datetime.now().timestamp()))
+
     @property
-    def finding_id(self):
-        return self.__finding_id
+    def id(self):
+        return self.__id
+
+    @id.setter
+    def id(self, finding_id: str):
+        self.__id = finding_id
 
     @property
     def location(self) -> Location:
@@ -40,7 +51,9 @@ class Finding:
 
     def to_dict(self):
         return {
-            "location": self.location.to_dict(),
+            "id": self.id,
+            "longitude": self.location.longitude,
+            "latitude": self.location.latitude,
             "tags": self.tags,
             "image_hash": self.image_hash
         }
@@ -50,5 +63,8 @@ class Finding:
         if "image_hash" not in finding_as_json.keys():
             finding_as_json["image_hash"] = None
 
-        location = Location.create_from_json(finding_as_json["location"])
-        return Finding(location, finding_as_json["tags"], finding_as_json["image_hash"])
+        if "id" not in finding_as_json.keys():
+            finding_as_json["id"] = None
+
+        location = Location(finding_as_json["longitude"], finding_as_json["latitude"])
+        return Finding(location, finding_as_json["tags"], finding_as_json["image_hash"], finding_as_json["id"])
