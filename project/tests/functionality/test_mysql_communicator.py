@@ -1,9 +1,12 @@
 import unittest
+from random import randint
+from datetime import datetime
 import mysql.connector as connector
-from src.finding import Finding
-from src.location import Location
-from src.db_communicator.mysql_communicator.mysql_communicator import MySQLCommunicator
-from src.db_communicator.communicator_exceptions import FindingNotFoundError
+from project.src.finding import Finding
+from project.src.location import Location
+from project.src.user import User
+from project.src.db_communicator.mysql_communicator.mysql_communicator import MySQLCommunicator
+from project.src.db_communicator.communicator_exceptions import FindingNotFoundError
 
 
 class TestMySQLCommunicator(unittest.TestCase):
@@ -91,6 +94,51 @@ class TestMySQLCommunicator(unittest.TestCase):
         test_finding = [finding for finding in close_findings if finding.id == "test"]
 
         self.assertEqual(len(test_finding), 0)
+
+    def test_adding_user(self):
+        user = User("test_adding", list("123"), Location(1, 1), 3, str(int(datetime.now().timestamp())))
+        MySQLCommunicator.add_user(user)
+
+        query = f"SELECT * FROM `junkia`.`users` WHERE id = '{user.id}'"
+        conn = self.__get_connection()
+        cursor = self.__get_cursor(conn)
+        cursor.execute(query)
+        results = cursor.fetchone()
+
+        cursor.execute(f"DELETE FROM `junkia`.`users` WHERE id = '{user.id}'")
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        self.assertEqual(results["id"], user.id)
+        self.assertEqual(results["tags"].split(","), user.tags)
+        self.assertEqual(results["longitude"], user.location.longitude)
+        self.assertEqual(results["latitude"], user.location.latitude)
+        self.assertEqual(results["last_notified"], user.last_notified)
+        self.assertEqual(results["radius"], user.radius)
+
+    def test_getting_user(self):
+        user_id = "test"
+        user = MySQLCommunicator.get_user(user_id)
+
+        self.assertEqual(user.id, user_id)
+        self.assertEqual(user.location.latitude, -2)
+        self.assertEqual(user.location.longitude, 1.2)
+        self.assertEqual(user.tags, list("abv"))
+        self.assertEqual(user.radius, 10)
+        self.assertEqual(user.last_notified, "12345678")
+
+    def test_updating_user(self):
+        user = User("test_updating", list(str(randint(-1000, 1000))),
+                    Location(randint(-100, 100) / 2, randint(-100, 100) / 2), randint(-10, 10),
+                    str(int(datetime.now().timestamp())))
+        MySQLCommunicator.update_user(user)
+        updated_user = MySQLCommunicator.get_user(user.id)
+
+        self.assertEqual(updated_user.id, user.id)
+        self.assertEqual(updated_user.tags, user.tags)
+        self.assertEqual(updated_user.location, user.location)
+        self.assertEqual(updated_user.radius, user.radius)
 
 
 if __name__ == '__main__':

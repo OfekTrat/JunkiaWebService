@@ -1,5 +1,5 @@
-from src.finding import Finding, WrongFindingInputError
-from src.location import Location
+from project.src.finding import Finding, WrongFindingInputError
+from project.src.location import Location
 import unittest
 
 
@@ -55,13 +55,6 @@ class MyTestCase(unittest.TestCase):
             "tags": self.GOOD_TAGS,
             "image_hash": self.IMAGE_HASH
         }
-        finding_json_with_tags_as_string = {
-            "id": "test_id",
-            "longitude": self.GOOD_LONGITUDE,
-            "latitude": self.GOOD_LATITUDE,
-            "tags": "a,b",
-            "image_hash": self.IMAGE_HASH
-        }
 
         finding = Finding.create_from_json(simple_finding_json)
         self.assertEqual(finding.location, self.GOOD_LOCATION)
@@ -78,12 +71,6 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(finding3.tags, self.GOOD_TAGS)
         self.assertEqual(finding3.image_hash, self.IMAGE_HASH)
         self.assertEqual(finding3.id, "test_id")
-
-        finding4 = Finding.create_from_json(finding_json_with_tags_as_string)
-        self.assertEqual(finding4.location, self.GOOD_LOCATION)
-        self.assertEqual(finding4.tags, ["a", "b"])
-        self.assertEqual(finding4.image_hash, self.IMAGE_HASH)
-        self.assertEqual(finding4.id, "test_id")
 
     def test_finding_to_dict(self):
         finding = Finding(self.GOOD_LOCATION, self.GOOD_TAGS)

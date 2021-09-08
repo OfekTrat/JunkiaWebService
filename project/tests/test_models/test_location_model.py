@@ -1,4 +1,4 @@
-from src.location import Location, InvalidLocationError
+from project.src.location import Location, InvalidLocationError
 import unittest
 
 
