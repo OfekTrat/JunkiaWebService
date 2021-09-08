@@ -1,7 +1,7 @@
 from typing import List, Tuple, Union, Dict, Optional
 from .finding_exceptions import WrongFindingInputError
 from datetime import datetime
-from src.location import Location
+from ..location import Location
 
 
 class Finding:
@@ -65,9 +65,6 @@ class Finding:
 
         if "id" not in finding_as_json.keys():
             finding_as_json["id"] = None
-
-        if isinstance(finding_as_json["tags"], str):
-            finding_as_json["tags"] = finding_as_json["tags"].split(",")
 
         location = Location(finding_as_json["longitude"], finding_as_json["latitude"])
         return Finding(location, finding_as_json["tags"], finding_as_json["image_hash"], finding_as_json["id"])
