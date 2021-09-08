@@ -1,0 +1,4 @@
+
+
+class FindingNotFoundError(Exception):
+    pass
