@@ -66,5 +66,8 @@ class Finding:
         if "id" not in finding_as_json.keys():
             finding_as_json["id"] = None
 
-        location = Location(finding_as_json["longitude"], finding_as_json["latitude"])
-        return Finding(location, finding_as_json["tags"], finding_as_json["image_hash"], finding_as_json["id"])
+        try:
+            location = Location(finding_as_json["longitude"], finding_as_json["latitude"])
+            return Finding(location, finding_as_json["tags"], finding_as_json["image_hash"], finding_as_json["id"])
+        except AttributeError as e:
+            raise WrongFindingInputError("Json as Finding is malformed")
