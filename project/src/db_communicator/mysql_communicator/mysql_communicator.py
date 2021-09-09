@@ -79,15 +79,20 @@ class MySQLCommunicator(IDBCommunicator):
         if user_as_json is None:
             raise UserNotFoundError
 
-        user_location = Location(user_as_json["longitude"], user_as_json["latitude"])
-        user = User(user_as_json["id"], user_as_json["tags"].split(","), user_location, user_as_json["radius"],
-                    user_as_json["last_notified"])
-
-        return user
+        user_as_json = cls.__change_tags_in_dict(user_as_json)
+        return User.create_from_json(user_as_json)
 
     @classmethod
     def update_user(cls, user_to_update: User):
         query = MySQLQueryBuilder.build_update_user(user_to_update)
+        conn, cursor = cls.__execute(query)
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    @classmethod
+    def _delete_user(cls, user_id: str):
+        query = f"DELETE FROM junkia.users WHERE id = '{user_id}'"
         conn, cursor = cls.__execute(query)
         conn.commit()
         cursor.close()
