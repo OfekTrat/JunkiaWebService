@@ -1,3 +1,6 @@
 *.pyc
-.idea/*
-__pycache__/*
+**/.idea/**
+**/__pycache__/**
+*.xml
+*.iml
+**/.pytest_cache/**
