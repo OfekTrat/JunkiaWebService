@@ -66,6 +66,34 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(list(data.keys()), ["error"])
         self.assertEqual(data["error"], f"finding id {finding_id} not found")
 
+    def test_find_by_radius(self):
+        client = self.__get_client()
+        location = Location(1,2)
+        radius = 1
+        payload = {"radius": radius, "longitude": location.longitude, "latitude": location.latitude}
+
+        resp = client.post("/finding/by_radius", data=json.dumps(payload), content_type="application/json")
+        json_data = resp.json
+        finding = Finding.create_from_json(json_data[0])
+
+        self.assertEqual(resp.status, "200 OK")
+        self.assertEqual(type(json_data), list)
+        self.assertEqual(finding.id, "test")
+        self.assertEqual(finding.location, Location(1, 1))
+        self.assertEqual(finding.image_hash, "asdfgh")
+
+    def test_radius_empty_search(self):
+        client = self.__get_client()
+        location = Location(20, 2)
+        radius = 1
+        payload = {"radius": radius, "longitude": location.longitude, "latitude": location.latitude}
+
+        resp = client.post("/finding/by_radius", data=json.dumps(payload), content_type="application/json")
+        json_data = resp.json
+        self.assertEqual(type(json_data), list)
+        self.assertEqual(len(json_data), 0)
+
+
 
 
 if __name__ == '__main__':
