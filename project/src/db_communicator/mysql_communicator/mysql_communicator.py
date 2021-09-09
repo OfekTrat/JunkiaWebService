@@ -1,11 +1,12 @@
 from typing import List, Union, Tuple, Dict, Any
-import mysql.connector as connector
-from mysql.connector import CMySQLConnection, MySQLConnection
-from mysql.connector.cursor_cext import CMySQLCursor
+import pymysql
+from pymysql.connections import Connection
+from pymysql.cursors import Cursor
 from project.src.finding import Finding
 from project.src.location import Location
 from project.src.user import User
-from project.src.db_communicator.communicator_exceptions import FindingNotFoundError, UserNotFoundError
+from project.src.db_communicator.communicator_exceptions import FindingNotFoundError, UserNotFoundError, \
+    UserAlreadyExistError
 from project.src.db_communicator.idbcommunicator import IDBCommunicator
 from project.src.db_communicator.mysql_communicator.mysql_query_builder import MySQLQueryBuilder
 
@@ -21,6 +22,7 @@ class MySQLCommunicator(IDBCommunicator):
         conn, cursor = cls.__execute(query)
         conn.commit()
         cls.__close_session(conn, cursor)
+
 
     @classmethod
     def get_finding(cls, finding_id: str) -> Finding:
@@ -57,13 +59,15 @@ class MySQLCommunicator(IDBCommunicator):
         json_copy["tags"] = json_copy["tags"].split(",")
         return json_copy
 
-
     @classmethod
     def add_user(cls, user: User):
-        query = MySQLQueryBuilder.build_add_user(user)
-        conn, cursor = cls.__execute(query)
-        conn.commit()
-        cls.__close_session(conn, cursor)
+        try:
+            query = MySQLQueryBuilder.build_add_user(user)
+            conn, cursor = cls.__execute(query)
+            conn.commit()
+            cls.__close_session(conn, cursor)
+        except pymysql.err.IntegrityError as e:
+            raise UserAlreadyExistError(f"User {user.id} already exists")
 
     @classmethod
     def get_user(cls, user_id: str) -> User:
@@ -90,18 +94,18 @@ class MySQLCommunicator(IDBCommunicator):
         conn.close()
 
     @classmethod
-    def __execute(cls, sql_query: str) -> Tuple[Union[CMySQLConnection, MySQLConnection], CMySQLCursor]:
+    def __execute(cls, sql_query: str) -> Tuple[Connection, Cursor]:
         conn = cls.__get_connection()
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
         cursor.execute(sql_query)
         return conn, cursor
 
     @classmethod
-    def __get_connection(cls) -> Union[CMySQLConnection, MySQLConnection]:
-        conn = connector.connect(host=cls.MYSQL_HOST, user=cls.MYSQL_USER, password=cls.MYSQL_PASSWORD)
+    def __get_connection(cls) -> Connection:
+        conn = pymysql.connect(host=cls.MYSQL_HOST, user=cls.MYSQL_USER, password=cls.MYSQL_PASSWORD)
         return conn
 
     @classmethod
-    def __close_session(cls, conn: Union[CMySQLConnection, MySQLConnection], cursor: CMySQLCursor):
+    def __close_session(cls, conn: Connection, cursor: Cursor):
         cursor.close()
         conn.close()
