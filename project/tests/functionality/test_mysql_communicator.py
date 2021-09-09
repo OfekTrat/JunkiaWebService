@@ -1,18 +1,21 @@
 import unittest
 from random import randint
 from datetime import datetime
-import mysql.connector as connector
+import pymysql
+from pymysql import Connection
+from pymysql.cursors import Cursor
 from project.src.finding import Finding
 from project.src.location import Location
 from project.src.user import User
 from project.src.db_communicator.mysql_communicator.mysql_communicator import MySQLCommunicator
-from project.src.db_communicator.communicator_exceptions import FindingNotFoundError
+from project.src.db_communicator.communicator_exceptions import FindingNotFoundError, UserAlreadyExistError,\
+    UserNotFoundError
 
 
 class TestMySQLCommunicator(unittest.TestCase):
     @staticmethod
-    def __get_connection():
-        conn = connector.connect(
+    def __get_connection() -> Connection:
+        conn = pymysql.connect(
             host=MySQLCommunicator.MYSQL_HOST,
             user=MySQLCommunicator.MYSQL_USER,
             password=MySQLCommunicator.MYSQL_PASSWORD
@@ -20,8 +23,8 @@ class TestMySQLCommunicator(unittest.TestCase):
         return conn
 
     @staticmethod
-    def __get_cursor(conn):
-        return conn.cursor(dictionary=True)
+    def __get_cursor(conn: Connection) -> Cursor:
+        return conn.cursor(cursor=pymysql.cursors.DictCursor)
 
     def test_finding_upload(self):
         location = Location(1, 1)
@@ -29,7 +32,7 @@ class TestMySQLCommunicator(unittest.TestCase):
         MySQLCommunicator.upload_finding(finding)
 
         conn = self.__get_connection()
-        cursor = conn.cursor(dictionary=True)
+        cursor = self.__get_cursor(conn)
         query = f"SELECT * from junkia.findings WHERE id = '{finding.id}'"
         cursor.execute(query)
         results = cursor.fetchall()[0]
@@ -117,7 +120,15 @@ class TestMySQLCommunicator(unittest.TestCase):
         self.assertEqual(results["last_notified"], user.last_notified)
         self.assertEqual(results["radius"], user.radius)
 
+    def test_adding_existing_user(self):
+        user = User("test", list("123"), Location(1, 1), 3, str(int(datetime.now().timestamp())))
+
+        with self.assertRaises(UserAlreadyExistError):
+            MySQLCommunicator.add_user(user)
+
     def test_getting_user(self):
+        # user = User("test", tags=list("abv"), location=Location(1.2, -2), radius=10, last_notified="12345678")
+        # MySQLCommunicator.add_user(user)
         user_id = "test"
         user = MySQLCommunicator.get_user(user_id)
 
@@ -128,10 +139,17 @@ class TestMySQLCommunicator(unittest.TestCase):
         self.assertEqual(user.radius, 10)
         self.assertEqual(user.last_notified, "12345678")
 
+    def test_getting_unexistant_user(self):
+        user_id = "test_non_existant"
+
+        with self.assertRaises(UserNotFoundError):
+            MySQLCommunicator.get_user(user_id)
+
     def test_updating_user(self):
         user = User("test_updating", list(str(randint(-1000, 1000))),
                     Location(randint(-100, 100) / 2, randint(-100, 100) / 2), randint(-10, 10),
                     str(int(datetime.now().timestamp())))
+        # MySQLCommunicator.add_user(user)
         MySQLCommunicator.update_user(user)
         updated_user = MySQLCommunicator.get_user(user.id)
 
