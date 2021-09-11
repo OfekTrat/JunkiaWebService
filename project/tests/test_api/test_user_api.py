@@ -52,7 +52,7 @@ class MyTestCase(unittest.TestCase):
         json_data = resp.json
 
         self.assertEqual(resp.status, "404 NOT FOUND")
-        self.assertEqual(list(json_data.keys()), ["error"])
+        self.assertEqual(json_data["exit_code"], 1)
 
     def test_update_user(self):
         client = self.__get_client()

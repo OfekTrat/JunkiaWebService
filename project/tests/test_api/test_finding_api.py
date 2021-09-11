@@ -63,8 +63,7 @@ class MyTestCase(unittest.TestCase):
         resp = client.get(f"/finding/{finding_id}")
         data = resp.json
         self.assertEqual(resp.status, "404 NOT FOUND")
-        self.assertEqual(list(data.keys()), ["error"])
-        self.assertEqual(data["error"], f"finding id {finding_id} not found")
+        self.assertEqual(data["exit_code"], 1)
 
     def test_find_by_radius(self):
         client = self.__get_client()
