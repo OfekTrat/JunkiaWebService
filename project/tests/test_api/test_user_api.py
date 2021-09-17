@@ -38,7 +38,7 @@ class MyTestCase(unittest.TestCase):
     def test_get_user(self):
         client = self.__get_client()
         resp = client.get("/user/test")
-        user = User.create_from_json(resp.json)
+        user = User.create_from_json(resp.json["result"])
 
         self.assertEqual(user.id, "test")
         self.assertEqual(user.tags, ["a", "b", "v"])
@@ -73,8 +73,6 @@ class MyTestCase(unittest.TestCase):
         self.assertNotEqual(prev_user.tags, now_user.tags)
         self.assertNotEqual(prev_user.location, now_user.location)
         self.assertNotEqual(prev_user.radius, now_user.radius)
-
-
 
 
 if __name__ == '__main__':
