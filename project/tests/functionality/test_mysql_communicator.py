@@ -77,8 +77,8 @@ class TestMySQLCommunicator(unittest.TestCase):
             MySQLCommunicator.get_finding(finding.id)
 
     def test_successful_radius_finding(self):
-        location = Location(2, 2)
-        distance = 2
+        location = Location(1.00001, 1.00001)
+        distance = 100
         close_findings = MySQLCommunicator.get_finding_by_radius(location, distance)
         test_finding = [finding for finding in close_findings if finding.id == "test"]
 
