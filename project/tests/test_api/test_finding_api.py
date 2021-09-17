@@ -15,7 +15,7 @@ class MyTestCase(unittest.TestCase):
         return app.test_client()
 
     @staticmethod
-    def __load_response(resp: Response) -> Union[Dict, List]:
+    def __load_response(resp: Response) -> Dict[str, Union[List, Dict, str]]:
         return json.loads(resp.data.decode())
 
     def test_getting_finding(self):
@@ -24,7 +24,9 @@ class MyTestCase(unittest.TestCase):
 
         resp = client.get(f"/finding/{finding_id}")
         finding_as_json = self.__load_response(resp)
-        finding = Finding.create_from_json(finding_as_json)
+        assert "result" in finding_as_json.keys()
+        finding = Finding.create_from_json(finding_as_json["result"])
+
 
         self.assertEqual(finding.id, "test")
         self.assertEqual(finding.tags, ["tag1", "tag2"])
@@ -73,10 +75,10 @@ class MyTestCase(unittest.TestCase):
 
         resp = client.post("/finding/by_radius", data=json.dumps(payload), content_type="application/json")
         json_data = resp.json
-        finding = Finding.create_from_json(json_data[0])
+        finding = Finding.create_from_json(json_data["result"][0])
 
         self.assertEqual(resp.status, "200 OK")
-        self.assertEqual(type(json_data), list)
+        self.assertEqual(type(json_data["result"]), list)
         self.assertEqual(finding.id, "test")
         self.assertEqual(finding.location, Location(1, 1))
         self.assertEqual(finding.image_hash, "asdfgh")
@@ -89,8 +91,8 @@ class MyTestCase(unittest.TestCase):
 
         resp = client.post("/finding/by_radius", data=json.dumps(payload), content_type="application/json")
         json_data = resp.json
-        self.assertEqual(type(json_data), list)
-        self.assertEqual(len(json_data), 0)
+        self.assertEqual(type(json_data["result"]), list)
+        self.assertEqual(len(json_data["result"]), 0)
 
 
 
