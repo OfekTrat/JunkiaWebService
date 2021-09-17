@@ -47,7 +47,6 @@ class MySQLCommunicator(IDBCommunicator):
     @classmethod
     def get_finding_by_radius(cls, location: Location, radius: Union[int, float]) -> List[Finding]:
         query = MySQLQueryBuilder.build_radius_finding_search(location, radius)
-        print(query)
         conn, cursor = cls.__execute(query)
         finding_results = [Finding.create_from_json(cls.__change_tags_in_dict(row)) for row in cursor.fetchall()]
         cls.__close_session(conn, cursor)
