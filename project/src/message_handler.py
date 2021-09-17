@@ -1,4 +1,4 @@
-from typing import Union, Dict
+from typing import Union, Dict, List
 
 
 class MessageHandler:
@@ -12,3 +12,7 @@ class MessageHandler:
     @classmethod
     def get_error_msg(cls, error_msg: str) -> Dict[str, Union[str, int]]:
         return {"error": error_msg, "exit_code": cls.ERROR_CODE}
+
+    @classmethod
+    def get_data_msg(cls, data: Union[Dict, List]) -> Dict[str, Dict]:
+        return {"result": data}

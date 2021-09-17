@@ -14,7 +14,7 @@ def get_or_delete_finding(finding_id: str):
     if request.method == "GET":
         try:
             finding = MySQLCommunicator.get_finding(finding_id)
-            return jsonify(finding.to_dict())
+            return MessageHandler.get_data_msg(finding.to_dict())
         except FindingNotFoundError as e:
             return MessageHandler.get_error_msg(str(e)), 404
     elif request.method == "DELETE":
@@ -31,7 +31,7 @@ def get_finding_by_radius():
         location = Location.create_from_json(json_data)
         findings = MySQLCommunicator.get_finding_by_radius(location, radius)
         findings_as_json = [f.to_dict() for f in findings]
-        return jsonify(findings_as_json)
+        return MessageHandler.get_data_msg(findings_as_json)
     except KeyError as e:
         return MessageHandler.get_error_msg("Missing important fields"), 400
 
@@ -63,7 +63,8 @@ def add_user():
 def update_or_get_user(user_id: str):
     try:
         if request.method == "GET":
-            return MySQLCommunicator.get_user(user_id).to_dict()
+            user = MySQLCommunicator.get_user(user_id)
+            return MessageHandler.get_data_msg(user.to_dict())
         elif request.method == "PUT":
             json_data = request.json
             user = User.create_from_json(json_data)
