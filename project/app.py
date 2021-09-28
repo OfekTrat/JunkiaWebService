@@ -80,3 +80,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+#TODO Add user to uploading finding, and to the DB
+#     and handling when a user does not exist.
+#TODO Handle Errors in endpoinst (int the routes)
+#TODO Add Finding Grabage Collector
+#TODO Add CLI arguments to app
+#TODO Add delete by time (for Grabage Collector) endpoint
