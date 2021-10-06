@@ -5,7 +5,7 @@ from random import randint
 from project.app import app
 from project.src.user import User
 from project.src.location import Location
-from project.src.db_communicator.mysql_communicator import MySQLCommunicator
+from project.src.db_communicators.mysql_communicator import MySqlUserCommunicator
 
 
 class MyTestCase(unittest.TestCase):
@@ -24,8 +24,8 @@ class MyTestCase(unittest.TestCase):
             "last_notified": "123456"
         }
         resp = client.post("/user", data=json.dumps(user_as_json), content_type="application/json")
-        user = MySQLCommunicator.get_user(user_as_json["id"])
-        MySQLCommunicator._delete_user(user.id)
+        user = MySqlUserCommunicator.get(user_as_json["id"])
+        MySqlUserCommunicator.delete(user.id)
 
         self.assertEqual(resp.status, "200 OK")
         self.assertEqual(user_as_json["id"], user.id)
@@ -64,9 +64,9 @@ class MyTestCase(unittest.TestCase):
             "radius": randint(0, 100),
             "last_notified": "12345678"
         }
-        prev_user = MySQLCommunicator.get_user(user_as_json["id"])
+        prev_user = MySqlUserCommunicator.get(user_as_json["id"])
         resp = client.put(f"/user/{user_as_json['id']}", data=json.dumps(user_as_json), content_type="application/json")
-        now_user = MySQLCommunicator.get_user(user_as_json["id"])
+        now_user = MySqlUserCommunicator.get(user_as_json["id"])
 
         self.assertEqual(resp.status, "200 OK")
         self.assertEqual(prev_user.id, now_user.id)
