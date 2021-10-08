@@ -9,6 +9,7 @@ from project.src.db_communicators.interfaces.iuser_communicator import IUserComm
 
 class MySqlUserCommunicator(MySQLCommunicatorAbs, IUserCommunicator):
     def __init__(self, mysql_executor: MySQLExecuter):
+        super().__init__()
         self.__executor = mysql_executor
 
     def get(self, user_id: str) -> User:

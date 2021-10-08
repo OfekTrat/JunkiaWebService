@@ -1,6 +1,10 @@
 import json
 from typing import List, Dict, Union
-from project.app import app
+from main import create_app
+from project.api import API
+from project.src.db_communicators.image_communicator import ImageCommunicator
+from project.src.db_communicators.mysql_communicator import MySqlUserCommunicator
+from project.src.db_communicators.mysql_communicator.mysql_executer import MySQLExecuter
 from project.src.db_communicators.mysql_communicator.mysql_finding_communicator.exceptions import FindingNotFoundError
 from project.src.finding import Finding
 from project.src.location import Location
@@ -9,9 +13,14 @@ from flask import Response
 from project.src.db_communicators.mysql_communicator.mysql_finding_communicator import MySqlFindingCommunicator
 
 
+executor = MySQLExecuter("localhost", "root", "OfekT2021")
+api = API(MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), ImageCommunicator())
+finding_comm = MySqlFindingCommunicator(executor)
+app = create_app(api)
+
+
 class TestFidningAPI(unittest.TestCase):
-    @staticmethod
-    def __get_client():
+    def __get_client(self):
         return app.test_client()
 
     @staticmethod
@@ -35,21 +44,21 @@ class TestFidningAPI(unittest.TestCase):
     def test_delete_finding(self):
         client = self.__get_client()
         finding = Finding(Location(1, 1), tags=list("abc"), finding_id="test_api_delete")
-        MySqlFindingCommunicator.upload(finding)
+        finding_comm.upload(finding)
         resp = client.delete(f"/finding/{finding.id}")
 
         self.assertEqual(resp.status, "200 OK")
 
         with self.assertRaises(FindingNotFoundError):
-            MySqlFindingCommunicator.get(finding.id)
+            finding_comm.get(finding.id)
 
     def test_upload_finding(self):
         client = self.__get_client()
         finding = Finding(Location(1, 1), tags=list("abc"), finding_id="test_api_upload")
         resp = client.post("/finding", data=json.dumps(finding.to_dict()), content_type="application/json")
 
-        gotten_finding = MySqlFindingCommunicator.get(finding.id)
-        MySqlFindingCommunicator.delete(finding.id)
+        gotten_finding = finding_comm.get(finding.id)
+        finding_comm.delete(finding.id)
 
         self.assertEqual(resp.status, "200 OK")
         self.assertEqual(gotten_finding.id, finding.id)
@@ -68,7 +77,7 @@ class TestFidningAPI(unittest.TestCase):
 
     def test_find_by_radius(self):
         client = self.__get_client()
-        location = Location(1,2)
+        location = Location(1, 2)
         radius = 1000
         payload = {"radius": radius, "longitude": location.longitude, "latitude": location.latitude}
 
