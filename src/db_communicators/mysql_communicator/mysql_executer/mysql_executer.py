@@ -3,15 +3,17 @@ from typing import Tuple
 from pymysql.cursors import Cursor, DictCursor
 from pymysql.connections import Connection
 
+from .iexecuter import IExecuter
 
-class MySQLExecuter:
+
+class MySQLExecuter(IExecuter):
     def __init__(self, host: str, user: str, password: str):
         self.__host = host
         self.__user = user
         self.__password = password
 
     def __enter__(self) -> Tuple[Connection, Cursor]:
-        self.__conn = self.__get_connection()
+        self.__conn = self._get_connection()
         self.__cursor = self.__conn.cursor(DictCursor)
         return self.__conn, self.__cursor
 
@@ -19,6 +21,7 @@ class MySQLExecuter:
         self.__cursor.close()
         self.__conn.close()
 
-    def __get_connection(self) -> Connection:
-        return pymysql.connect(host=self.__host, user=self.__user, password=self.__password)
-
+    def _get_connection(self) -> Connection:
+        return pymysql.connect(
+            host=self.__host, user=self.__user, password=self.__password
+        )
