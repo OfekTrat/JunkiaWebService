@@ -1,7 +1,7 @@
 import unittest
 import random
 
-from project.src.db_communicators.mysql_communicator.mysql_user_communicator.exceptions import UserNotFoundError, \
+from project.src.db_communicators.mysql_communicator.mysql_user_communicator import UserNotFoundError, \
     UserAlreadyExistsError
 from project.src.location import Location
 from project.src.user import User

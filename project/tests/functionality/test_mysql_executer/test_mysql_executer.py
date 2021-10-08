@@ -1,5 +1,5 @@
 import unittest
-from project.src.db_communicators.mysql_communicator.mysql_executer.mysql_executer import MySQLExecuter
+from project.src.db_communicators.mysql_communicator.mysql_executer import MySQLExecuter
 
 
 class TestMyExecuter(unittest.TestCase):

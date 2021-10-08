@@ -5,17 +5,17 @@ from .queries import Queries
 from project.src.db_communicators.mysql_communicator.mysql_executer import MySQLExecuter
 from .exceptions import FindingNotFoundError
 from typing import List
-from project.constants import Constants
+from project.src.db_communicators.interfaces.ifinding_communicator import IFindingCommunicator
 
 
-class MySqlFindingCommunicator(MySQLCommunicatorAbs):
-    executer = MySQLExecuter(Constants.HOST, Constants.USER, Constants.PASS)
+class MySqlFindingCommunicator(MySQLCommunicatorAbs, IFindingCommunicator):
+    def __init__(self, mysql_executor: MySQLExecuter):
+        self.__executor = mysql_executor
 
-    @classmethod
-    def get(cls, finding_id: str) -> Finding:
+    def get(self, finding_id: str) -> Finding:
         get_query = Queries.GET.value.format(finding_id=finding_id)
 
-        with cls.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(get_query)
             result = cursor.fetchall()
 
@@ -23,47 +23,43 @@ class MySqlFindingCommunicator(MySQLCommunicatorAbs):
                 raise FindingNotFoundError()
 
             finding_as_json = result[0]
-            finding_as_json["tags"] = cls._str_to_tags(finding_as_json["tags"])
+            finding_as_json["tags"] = self._str_to_tags(finding_as_json["tags"])
 
             return Finding.create_from_json(finding_as_json)
 
-    @classmethod
-    def upload(cls, finding: Finding):
+    def upload(self, finding: Finding):
         upload_query = Queries.UPLOAD.value.format(
             finding_id=finding.id,
             longitude=finding.location.longitude,
             latitude=finding.location.latitude,
             image_hash=finding.image_hash,
-            tags=cls._tags_to_str(finding.tags)
+            tags=self._tags_to_str(finding.tags)
         )
 
-        with cls.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(upload_query)
             conn.commit()
 
-    @classmethod
-    def delete(cls, finding_id: str):
+    def delete(self, finding_id: str):
         delete_query = Queries.DELETE.value.format(ids=f"'{finding_id}'")
 
-        with cls.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(delete_query)
             conn.commit()
 
-    @classmethod
-    def delete_multiple(cls, finding_ids: List[str]):
+    def delete_multiple(self, finding_ids: List[str]):
         ids = ", ".join([f"'{finding_id}'" for finding_id in finding_ids])
         delete_query = Queries.DELETE.value.format(ids=ids)
 
-        with cls.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(delete_query)
             conn.commit()
 
-    @classmethod
-    def get_by_radius(cls, radius: int, location: Location) -> List[Finding]:
+    def get_by_radius(self, radius: int, location: Location) -> List[Finding]:
         query = Queries.FIND_BY_RADIUS.value.format(radius=radius, longitude=location.longitude,
                                                     latitude=location.latitude)
 
-        with cls.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(query)
             results = cursor.fetchall()
             return [Finding.create_from_json(res) for res in results]
