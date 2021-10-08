@@ -1,9 +1,9 @@
 import argparse
 from flask import Flask
-from project.api import API
-from project.src.db_communicators.mysql_communicator import MySqlUserCommunicator, MySqlFindingCommunicator
-from project.src.db_communicators.image_communicator import ImageCommunicator
-from project.src.db_communicators.mysql_communicator.mysql_executer import MySQLExecuter
+from src.api import API
+from src.db_communicators.mysql_communicator import MySqlUserCommunicator, MySqlFindingCommunicator
+from src.db_communicators import ImageCommunicator
+from src.db_communicators.mysql_communicator import MySQLExecuter
 
 
 def create_argparse() -> argparse.ArgumentParser:
