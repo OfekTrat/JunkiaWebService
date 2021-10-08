@@ -4,11 +4,11 @@ from .queries import Queries
 from .exceptions import UserNotFoundError, UserAlreadyExistsError
 from ..mysql_communicator_abs import MySQLCommunicatorAbs
 from src.db_communicators.interfaces.iuser_communicator import IUserCommunicator
-from ..mysql_executer.iexecuter import IExecuter
+from ..mysql_executor.iexecutor import IExecutor
 
 
 class MySqlUserCommunicator(MySQLCommunicatorAbs, IUserCommunicator):
-    def __init__(self, executor: IExecuter):
+    def __init__(self, executor: IExecutor):
         super().__init__()
         self.__executor = executor
 

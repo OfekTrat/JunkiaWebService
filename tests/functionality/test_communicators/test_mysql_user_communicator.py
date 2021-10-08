@@ -6,14 +6,14 @@ from src.db_communicators.mysql_communicator import UserNotFoundError, \
 from src.location import Location
 from src.user import User
 from src.db_communicators.mysql_communicator import MySqlUserCommunicator
-from src.db_communicators.mysql_communicator.mysql_executer import MySQLExecuter
+from src.db_communicators.mysql_communicator.mysql_executor import MySQLExecutor
 
 
 class TestUserCommunicator(unittest.TestCase):
     HOST = "localhost"
     USER = "root"
     PASS = "OfekT2021"
-    executer = MySQLExecuter(HOST, USER, PASS)
+    executer = MySQLExecutor(HOST, USER, PASS)
     user_comm = MySqlUserCommunicator(executer)
 
     def test_get(self):

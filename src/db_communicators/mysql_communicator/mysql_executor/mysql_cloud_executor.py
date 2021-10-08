@@ -1,12 +1,11 @@
-import pymysql
 from typing import Tuple
 from pymysql.cursors import Cursor, DictCursor
 from pymysql.connections import Connection
+from google.cloud.sql.connector import connector
+from .iexecutor import IExecutor
 
-from .iexecuter import IExecuter
 
-
-class MySQLExecuter(IExecuter):
+class MyCloudSQLExecutor(IExecutor):
     def __init__(self, host: str, user: str, password: str):
         self.__host = host
         self.__user = user
@@ -22,6 +21,11 @@ class MySQLExecuter(IExecuter):
         self.__conn.close()
 
     def _get_connection(self) -> Connection:
-        return pymysql.connect(
-            host=self.__host, user=self.__user, password=self.__password
+        return connector.connect(
+            "junkiapp:us-central1:junkia",
+            "pymysql",
+            user=self.__user,
+            password=self.__password,
+            db="junkia"
         )
+

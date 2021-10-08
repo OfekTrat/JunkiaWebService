@@ -4,7 +4,7 @@ from flask import Flask
 from src.api import API
 from src.db_communicators.mysql_communicator import MySqlUserCommunicator, MySqlFindingCommunicator
 from src.db_communicators import ImageCommunicator
-from src.db_communicators.mysql_communicator.mysql_executer.mysql_cloud_executor import MyCloudSQLExecuter
+from src.db_communicators.mysql_communicator.mysql_executor.mysql_cloud_executor import MyCloudSQLExecutor
 
 
 def setup_app_credentials_enc():
@@ -35,7 +35,7 @@ def create_app(api: API) -> Flask:
 def main():
     parser = create_argparse()
     args = parser.parse_args()
-    mysql_executor = MyCloudSQLExecuter(args.mysql_host, args.mysql_user, args.mysql_password)
+    mysql_executor = MyCloudSQLExecutor(args.mysql_host, args.mysql_user, args.mysql_password)
 
     credential_path = "google_cloud/junkiapp-619f247751a4.json"
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path

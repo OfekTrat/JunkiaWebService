@@ -5,7 +5,7 @@ from pymysql.connections import Connection
 from pymysql.cursors import Cursor
 
 
-class IExecuter(Protocol):
+class IExecutor(Protocol):
     @abstractmethod
     def __enter__(self) -> Tuple[Connection, Cursor]:
         raise NotImplementedError()
