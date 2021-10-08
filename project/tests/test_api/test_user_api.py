@@ -2,10 +2,20 @@ import json
 import unittest
 from random import randint
 
-from project.app import app
+from project.api import API
+from main import create_app
+from project.src.db_communicators.mysql_communicator.mysql_executer import MySQLExecuter
+from project.src.db_communicators.mysql_communicator import MySqlUserCommunicator, MySqlFindingCommunicator
+from project.src.db_communicators.image_communicator import ImageCommunicator
 from project.src.user import User
 from project.src.location import Location
 from project.src.db_communicators.mysql_communicator import MySqlUserCommunicator
+
+
+executor = MySQLExecuter("localhost", "root", "OfekT2021")
+api = API(MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), ImageCommunicator())
+user_comm = MySqlUserCommunicator(executor)
+app = create_app(api)
 
 
 class MyTestCase(unittest.TestCase):
@@ -24,8 +34,8 @@ class MyTestCase(unittest.TestCase):
             "last_notified": "123456"
         }
         resp = client.post("/user", data=json.dumps(user_as_json), content_type="application/json")
-        user = MySqlUserCommunicator.get(user_as_json["id"])
-        MySqlUserCommunicator.delete(user.id)
+        user = user_comm.get(user_as_json["id"])
+        user_comm.delete(user.id)
 
         self.assertEqual(resp.status, "200 OK")
         self.assertEqual(user_as_json["id"], user.id)
@@ -64,9 +74,9 @@ class MyTestCase(unittest.TestCase):
             "radius": randint(0, 100),
             "last_notified": "12345678"
         }
-        prev_user = MySqlUserCommunicator.get(user_as_json["id"])
+        prev_user = user_comm.get(user_as_json["id"])
         resp = client.put(f"/user/{user_as_json['id']}", data=json.dumps(user_as_json), content_type="application/json")
-        now_user = MySqlUserCommunicator.get(user_as_json["id"])
+        now_user = user_comm.get(user_as_json["id"])
 
         self.assertEqual(resp.status, "200 OK")
         self.assertEqual(prev_user.id, now_user.id)

@@ -11,10 +11,11 @@ class TestFindingCommunicator(unittest.TestCase):
     USER = "root"
     PASS = "OfekT2021"
     executer = MySQLExecuter(HOST, USER, PASS)
+    finding_comm = MySqlFindingCommunicator(executer)
 
     def test_get(self):
         finding_id = "test"
-        finding = MySqlFindingCommunicator.get(finding_id)
+        finding = self.finding_comm.get(finding_id)
 
         assert finding.id == finding_id
         assert finding.tags == ["tag1", "tag2"]
@@ -31,7 +32,7 @@ class TestFindingCommunicator(unittest.TestCase):
             tags=list("abc"),
             image_hash="asdf",
         )
-        MySqlFindingCommunicator.upload(finding)
+        self.finding_comm.upload(finding)
 
         with self.executer as (conn, cursor):
             cursor.execute(get_query)
@@ -61,8 +62,8 @@ class TestFindingCommunicator(unittest.TestCase):
             tags=list("abc"),
             image_hash="asdf",
         )
-        MySqlFindingCommunicator.upload(finding)
-        MySqlFindingCommunicator.delete(finding.id)
+        self.finding_comm.upload(finding)
+        self.finding_comm.delete(finding.id)
 
         with self.executer as (conn, cursor):
             cursor.execute(get_query)
@@ -85,9 +86,9 @@ class TestFindingCommunicator(unittest.TestCase):
             tags=list("abc"),
             image_hash="asdf",
         )
-        MySqlFindingCommunicator.upload(finding1)
-        MySqlFindingCommunicator.upload(finding2)
-        MySqlFindingCommunicator.delete_multiple([finding1.id, finding2.id])
+        self.finding_comm.upload(finding1)
+        self.finding_comm.upload(finding2)
+        self.finding_comm.delete_multiple([finding1.id, finding2.id])
 
         with self.executer as (conn, cursor):
             cursor.execute(get_query)
@@ -99,7 +100,7 @@ class TestFindingCommunicator(unittest.TestCase):
     def test_get_finding_by_close_radius(self):
         radius = 10
         location = Location(1.000001, 0.99999)
-        results = MySqlFindingCommunicator.get_by_radius(radius, location)
+        results = self.finding_comm.get_by_radius(radius, location)
 
         assert type(results) == list
         assert len(results) == 1
@@ -108,14 +109,15 @@ class TestFindingCommunicator(unittest.TestCase):
     def test_get_finding_by_far_radius(self):
         radius = 10
         location = Location(-90.2, 89.993)
-        results = MySqlFindingCommunicator.get_by_radius(radius, location)
+        results = self.finding_comm.get_by_radius(radius, location)
 
         assert type(results) == list
         assert len(results) == 0
 
     def test_get_nonexistant_finding(self):
         with self.assertRaises(FindingNotFoundError):
-            MySqlFindingCommunicator.get("4567ujkp")
+            self.finding_comm.get("4567ujkp")
+
 
 if __name__ == '__main__':
     unittest.main()

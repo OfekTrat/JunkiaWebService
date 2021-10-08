@@ -1,7 +1,7 @@
 import unittest
 import random
 
-from project.src.db_communicators.mysql_communicator.mysql_user_communicator import UserNotFoundError, \
+from project.src.db_communicators.mysql_communicator import UserNotFoundError, \
     UserAlreadyExistsError
 from project.src.location import Location
 from project.src.user import User
@@ -14,10 +14,11 @@ class TestUserCommunicator(unittest.TestCase):
     USER = "root"
     PASS = "OfekT2021"
     executer = MySQLExecuter(HOST, USER, PASS)
+    user_comm = MySqlUserCommunicator(executer)
 
     def test_get(self):
         user_id = "test"
-        user = MySqlUserCommunicator.get(user_id)
+        user = self.user_comm.get(user_id)
 
         assert user.id == user_id
         assert user.tags == ["a", "b", "v"]
@@ -32,7 +33,7 @@ class TestUserCommunicator(unittest.TestCase):
         user = User(id="test_upload", tags=list("123"), location=Location(-10.22, 56.33),
                     radius=12, last_notified="12345678")
 
-        MySqlUserCommunicator.upload(user)
+        self.user_comm.upload(user)
 
         with self.executer as (conn, cursor):
             cursor.execute(get_query)
@@ -47,7 +48,6 @@ class TestUserCommunicator(unittest.TestCase):
             assert result["radius"] == user.radius
             assert result["last_notified"] == user.last_notified
 
-
     def test_delete(self):
         get_user = "SELECT * FROM junkia.users WHERE id = 'test_delete'"
         upload_user = "INSERT INTO junkia.users (id, tags, longitude, latitude, radius, last_notified) " \
@@ -56,8 +56,10 @@ class TestUserCommunicator(unittest.TestCase):
         with self.executer as (conn, cursor):
             cursor.execute(upload_user)
             conn.commit()
-            MySqlUserCommunicator.delete('test_delete')
 
+        self.user_comm.delete('test_delete')
+
+        with self.executer as (conn, cursor):
             cursor.execute(get_user)
             result = cursor.fetchall()
 
@@ -71,7 +73,7 @@ class TestUserCommunicator(unittest.TestCase):
                     location=Location(random.randint(-1800, 1800)/10, random.randint(-900, 900)/10),
                     radius=random.randint(10, 20), last_notified=str(random.randint(1000, 9999)))
 
-        MySqlUserCommunicator.update(user)
+        self.user_comm.update(user)
 
         with self.executer as (conn, cursor):
             cursor.execute(get_result)
@@ -89,14 +91,14 @@ class TestUserCommunicator(unittest.TestCase):
 
     def test_get_nonexistant_user(self):
         with self.assertRaises(UserNotFoundError):
-            MySqlUserCommunicator.get("456uhnkl")
+            self.user_comm.get("456uhnkl")
 
     def test_upload_existing_user(self):
         user = User("test", tags=list("123"), location=Location(-10.22, 56.33),
                     radius=12, last_notified="12345678")
 
         with self.assertRaises(UserAlreadyExistsError):
-            MySqlUserCommunicator.upload(user)
+            self.user_comm.upload(user)
 
 
 if __name__ == '__main__':
