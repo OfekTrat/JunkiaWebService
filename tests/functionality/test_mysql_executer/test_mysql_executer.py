@@ -1,12 +1,12 @@
 import unittest
-from src.db_communicators.mysql_communicator.mysql_executer import MySQLExecuter
+from src.db_communicators.mysql_communicator import MySQLExecutor
 
 
 class TestMyExecuter(unittest.TestCase):
     HOST = "localhost"
     USER = "root"
     PASS = "OfekT2021"
-    executer = MySQLExecuter(HOST, USER, PASS)
+    executer = MySQLExecutor(HOST, USER, PASS)
 
     def test_execute_one_result(self):
         query = "SELECT * FROM junkia.users"

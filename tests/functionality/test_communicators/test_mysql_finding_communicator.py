@@ -1,7 +1,7 @@
 import unittest
 from src.finding import Finding
 from src.db_communicators.mysql_communicator import MySqlFindingCommunicator
-from src.db_communicators.mysql_communicator.mysql_executer import MySQLExecuter
+from src.db_communicators.mysql_communicator.mysql_executor import MySQLExecutor
 from src.location import Location
 from src.db_communicators.mysql_communicator import FindingNotFoundError
 
@@ -10,7 +10,7 @@ class TestFindingCommunicator(unittest.TestCase):
     HOST = "localhost"
     USER = "root"
     PASS = "OfekT2021"
-    executer = MySQLExecuter(HOST, USER, PASS)
+    executer = MySQLExecutor(HOST, USER, PASS)
     finding_comm = MySqlFindingCommunicator(executer)
 
     def test_get(self):

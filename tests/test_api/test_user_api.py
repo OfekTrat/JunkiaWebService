@@ -1,10 +1,9 @@
 import json
 import unittest
 from random import randint
-
 from src.api import API
 from main import create_app
-from src.db_communicators.mysql_communicator.mysql_executer import MySQLExecuter
+from src.db_communicators.mysql_communicator.mysql_executor import MySQLExecutor
 from src.db_communicators.mysql_communicator import MySqlFindingCommunicator
 from src.db_communicators import ImageCommunicator
 from src.user import User
@@ -12,7 +11,7 @@ from src.location import Location
 from src.db_communicators.mysql_communicator import MySqlUserCommunicator
 
 
-executor = MySQLExecuter("localhost", "root", "OfekT2021")
+executor = MySQLExecutor("localhost", "root", "OfekT2021")
 api = API(MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), ImageCommunicator())
 user_comm = MySqlUserCommunicator(executor)
 app = create_app(api)

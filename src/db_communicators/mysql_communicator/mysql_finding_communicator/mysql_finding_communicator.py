@@ -1,16 +1,16 @@
 from src.finding import Finding
 from ..mysql_communicator_abs import MySQLCommunicatorAbs
+from ..mysql_executor.iexecutor import IExecutor
 from ....location import Location
 from .queries import Queries
-from ..mysql_executer import MySQLExecuter
 from .exceptions import FindingNotFoundError
 from typing import List
 from src.db_communicators.interfaces.ifinding_communicator import IFindingCommunicator
 
 
 class MySqlFindingCommunicator(MySQLCommunicatorAbs, IFindingCommunicator):
-    def __init__(self, mysql_executor: MySQLExecuter):
-        self.__executor = mysql_executor
+    def __init__(self, executor: IExecutor):
+        self.__executor = executor
 
     def get(self, finding_id: str) -> Finding:
         get_query = Queries.GET.value.format(finding_id=finding_id)

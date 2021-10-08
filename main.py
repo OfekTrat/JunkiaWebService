@@ -1,16 +1,22 @@
+import os
 import argparse
 from flask import Flask
 from src.api import API
 from src.db_communicators.mysql_communicator import MySqlUserCommunicator, MySqlFindingCommunicator
 from src.db_communicators import ImageCommunicator
-from src.db_communicators.mysql_communicator import MySQLExecuter
+from src.db_communicators.mysql_communicator.mysql_executor.mysql_cloud_executor import MyCloudSQLExecutor
+
+
+def setup_app_credentials_enc():
+    credential_path = "google_cloud/junkiapp-619f247751a4.json"
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 
 
 def create_argparse() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mysql-host", default="localhost")
-    parser.add_argument("--mysql-user", default="root")
-    parser.add_argument("--mysql-password", default="OfekT2021")
+    parser.add_argument("--mysql-host", default="1.1.1.1")
+    parser.add_argument("--mysql-user", default="junkia_user")
+    parser.add_argument("--mysql-password", default="junkia_user")
     return parser
 
 
@@ -29,7 +35,10 @@ def create_app(api: API) -> Flask:
 def main():
     parser = create_argparse()
     args = parser.parse_args()
-    mysql_executor = MySQLExecuter(args.mysql_host, args.mysql_user, args.mysql_password)
+    mysql_executor = MyCloudSQLExecutor(args.mysql_host, args.mysql_user, args.mysql_password)
+
+    credential_path = "google_cloud/junkiapp-619f247751a4.json"
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
     
     user_communicator = MySqlUserCommunicator(mysql_executor)
     finding_communicator = MySqlFindingCommunicator(mysql_executor)

@@ -4,7 +4,7 @@ from main import create_app
 from src.api import API
 from src.db_communicators import ImageCommunicator
 from src.db_communicators.mysql_communicator import MySqlUserCommunicator
-from src.db_communicators.mysql_communicator.mysql_executer import MySQLExecuter
+from src.db_communicators.mysql_communicator import MySQLExecutor
 from src.db_communicators.mysql_communicator import FindingNotFoundError
 from src.finding import Finding
 from src.location import Location
@@ -13,7 +13,7 @@ from flask import Response
 from src.db_communicators.mysql_communicator import MySqlFindingCommunicator
 
 
-executor = MySQLExecuter("localhost", "root", "OfekT2021")
+executor = MySQLExecutor("localhost", "root", "OfekT2021")
 api = API(MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), ImageCommunicator())
 finding_comm = MySqlFindingCommunicator(executor)
 app = create_app(api)
