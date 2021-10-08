@@ -1,7 +1,7 @@
 import unittest
 import random
 
-from project.src.db_communicators.mysql_communicator.mysql_user_communicator.exceptions import UserNotFoundError, \
+from project.src.db_communicators.mysql_communicator.mysql_user_communicator import UserNotFoundError, \
     UserAlreadyExistsError
 from project.src.location import Location
 from project.src.user import User
@@ -13,6 +13,7 @@ class TestUserCommunicator(unittest.TestCase):
     HOST = "localhost"
     USER = "root"
     PASS = "OfekT2021"
+    executer = MySQLExecuter(HOST, USER, PASS)
 
     def test_get(self):
         user_id = "test"
@@ -32,17 +33,19 @@ class TestUserCommunicator(unittest.TestCase):
                     radius=12, last_notified="12345678")
 
         MySqlUserCommunicator.upload(user)
-        executer = MySQLExecuter(self.HOST, self.USER, self.PASS)
-        result = executer.execute(get_query)[0]
-        executer.commit(delete_query)
-        executer.close()
 
-        assert result["id"] == user.id
-        assert result["tags"].split(",") == list("123")
-        assert result["longitude"] == user.location.longitude
-        assert result["latitude"] == user.location.latitude
-        assert result["radius"] == user.radius
-        assert result["last_notified"] == user.last_notified
+        with self.executer as (conn, cursor):
+            cursor.execute(get_query)
+            result = cursor.fetchall()[0]
+            cursor.execute(delete_query)
+            conn.commit()
+
+            assert result["id"] == user.id
+            assert result["tags"].split(",") == list("123")
+            assert result["longitude"] == user.location.longitude
+            assert result["latitude"] == user.location.latitude
+            assert result["radius"] == user.radius
+            assert result["last_notified"] == user.last_notified
 
 
     def test_delete(self):
@@ -50,13 +53,15 @@ class TestUserCommunicator(unittest.TestCase):
         upload_user = "INSERT INTO junkia.users (id, tags, longitude, latitude, radius, last_notified) " \
                       "VALUES ('test_delete', '1,2,3', 1, 1, 1, '1234y')"
 
-        executer = MySQLExecuter(self.HOST, self.USER, self.PASS)
-        executer.commit(upload_user)
-        MySqlUserCommunicator.delete('test_delete')
+        with self.executer as (conn, cursor):
+            cursor.execute(upload_user)
+            conn.commit()
+            MySqlUserCommunicator.delete('test_delete')
 
-        result = executer.execute(get_user)
+            cursor.execute(get_user)
+            result = cursor.fetchall()
 
-        assert type(result) == list
+        assert type(result) == tuple
         assert len(result) == 0
 
     def test_update(self):
@@ -68,19 +73,19 @@ class TestUserCommunicator(unittest.TestCase):
 
         MySqlUserCommunicator.update(user)
 
-        executer = MySQLExecuter(self.HOST, self.USER, self.PASS)
-        result = executer.execute(get_result)[0]
-        executer.close()
+        with self.executer as (conn, cursor):
+            cursor.execute(get_result)
+            result = cursor.fetchall()[0]
 
-        result["tags"] = result['tags'].split(",")
-        updated_user = User.create_from_json(result)
+            result["tags"] = result['tags'].split(",")
+            updated_user = User.create_from_json(result)
 
-        assert updated_user.id == user.id
-        assert updated_user.location.longitude == user.location.longitude
-        assert updated_user.location.latitude == user.location.latitude
-        assert updated_user.radius == user.radius
-        assert updated_user.last_notified != user.last_notified
-        assert updated_user.tags == user.tags
+            assert updated_user.id == user.id
+            assert updated_user.location.longitude == user.location.longitude
+            assert updated_user.location.latitude == user.location.latitude
+            assert updated_user.radius == user.radius
+            assert updated_user.last_notified != user.last_notified
+            assert updated_user.tags == user.tags
 
     def test_get_nonexistant_user(self):
         with self.assertRaises(UserNotFoundError):

@@ -1,31 +1,24 @@
 import pymysql
-from typing import Dict, List, Tuple, Union
+from typing import Tuple
 from pymysql.cursors import Cursor, DictCursor
 from pymysql.connections import Connection
 
 
 class MySQLExecuter:
     def __init__(self, host: str, user: str, password: str):
-        self.__conn = self.__get_connection(host, user, password)
+        self.__host = host
+        self.__user = user
+        self.__password = password
+
+    def __enter__(self) -> Tuple[Connection, Cursor]:
+        self.__conn = self.__get_connection()
         self.__cursor = self.__conn.cursor(DictCursor)
+        return self.__conn, self.__cursor
 
-    @staticmethod
-    def __get_connection(host: str, user: str, password: str) -> Connection:
-        return pymysql.connect(host=host, user=user, password=password)
-
-    def execute(self, query: str) -> List[Dict[str, Union[int, float, str]]]:
-        self.__cursor.execute(query)
-        results = self.__cursor.fetchall()
-
-        if results == ():
-            return list()
-
-        return results
-
-    def commit(self, query: str):
-        self.__cursor.execute(query)
-        self.__conn.commit()
-
-    def close(self):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.__cursor.close()
         self.__conn.close()
+
+    def __get_connection(self) -> Connection:
+        return pymysql.connect(host=self.__host, user=self.__user, password=self.__password)
+

@@ -10,6 +10,7 @@ class TestFindingCommunicator(unittest.TestCase):
     HOST = "localhost"
     USER = "root"
     PASS = "OfekT2021"
+    executer = MySQLExecuter(HOST, USER, PASS)
 
     def test_get(self):
         finding_id = "test"
@@ -32,23 +33,25 @@ class TestFindingCommunicator(unittest.TestCase):
         )
         MySqlFindingCommunicator.upload(finding)
 
-        executer = MySQLExecuter(self.HOST, self.USER, self.PASS)
-        result = executer.execute(get_query)
-        executer.commit(delete_query)
-        executer.close()
+        with self.executer as (conn, cursor):
+            cursor.execute(get_query)
+            result = cursor.fetchall()
 
-        assert type(result) == list
-        assert len(result) == 1
+            assert type(result) == list
+            assert len(result) == 1
 
-        finding_as_json = result[0]
-        finding_as_json["tags"] = finding_as_json["tags"].split(",")
-        uploaded_finding = Finding.create_from_json(finding_as_json)
+            finding_as_json = result[0]
+            finding_as_json["tags"] = finding_as_json["tags"].split(",")
+            uploaded_finding = Finding.create_from_json(finding_as_json)
 
-        assert uploaded_finding.id == finding.id
-        assert uploaded_finding.location.longitude == finding.location.longitude
-        assert uploaded_finding.location.latitude == finding.location.latitude
-        assert uploaded_finding.image_hash == finding.image_hash
-        assert uploaded_finding.tags == finding.tags
+            assert uploaded_finding.id == finding.id
+            assert uploaded_finding.location.longitude == finding.location.longitude
+            assert uploaded_finding.location.latitude == finding.location.latitude
+            assert uploaded_finding.image_hash == finding.image_hash
+            assert uploaded_finding.tags == finding.tags
+
+            cursor.execute(delete_query)
+            conn.commit()
 
     def test_delete_single_finding(self):
         get_query = "SELECT * FROM junkia.findings WHERE id = 'test_delete'"
@@ -61,11 +64,12 @@ class TestFindingCommunicator(unittest.TestCase):
         MySqlFindingCommunicator.upload(finding)
         MySqlFindingCommunicator.delete(finding.id)
 
-        executer = MySQLExecuter(self.HOST, self.USER, self.PASS)
-        results = executer.execute(get_query)
-        executer.close()
+        with self.executer as (conn, cursor):
+            cursor.execute(get_query)
+            results = cursor.fetchall()
 
-        assert len(results) == 0
+            assert type(results) == tuple
+            assert len(results) == 0
 
     def test_delete_multiple_finding(self):
         get_query = "SELECT * FROM junkia.findings WHERE id = 'test_delete1' OR id = 'test_delete2'"
@@ -85,11 +89,12 @@ class TestFindingCommunicator(unittest.TestCase):
         MySqlFindingCommunicator.upload(finding2)
         MySqlFindingCommunicator.delete_multiple([finding1.id, finding2.id])
 
-        executer = MySQLExecuter(self.HOST, self.USER, self.PASS)
-        results = executer.execute(get_query)
-        executer.close()
+        with self.executer as (conn, cursor):
+            cursor.execute(get_query)
+            results = cursor.fetchall()
 
-        assert len(results) == 0
+            assert type(results) == tuple
+            assert len(results) == 0
     
     def test_get_finding_by_close_radius(self):
         radius = 10

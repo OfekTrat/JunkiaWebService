@@ -1,27 +1,19 @@
 import unittest
-from project.src.db_communicators.mysql_communicator.mysql_executer.mysql_executer import MySQLExecuter
+from project.src.db_communicators.mysql_communicator.mysql_executer import MySQLExecuter
 
 
 class TestMyExecuter(unittest.TestCase):
     HOST = "localhost"
     USER = "root"
     PASS = "OfekT2021"
+    executer = MySQLExecuter(HOST, USER, PASS)
 
     def test_execute_one_result(self):
         query = "SELECT * FROM junkia.users"
 
-        executer = MySQLExecuter(self.HOST, self.USER, self.PASS)
-        results = executer.execute(query)
-        executer.close()
-
-        assert type(results) == list
-
-    def test_execute_multiple_results(self):
-        query = "SELECT * FROM junkia.users"
-
-        executer = MySQLExecuter(self.HOST, self.USER, self.PASS)
-        results = executer.execute(query)
-        executer.close()
+        with self.executer as (conn, cursor):
+            cursor.execute(query)
+            results = cursor.fetchall()
 
         assert type(results) == list
 
@@ -31,20 +23,23 @@ class TestMyExecuter(unittest.TestCase):
         get_query = "SELECT * FROM junkia.users WHERE id = 'test_commit'"
         delete_query = "DELETE FROM junkia.users WHERE id = 'test_commit'"
 
-        executer = MySQLExecuter(self.HOST, self.USER, self.PASS)
-        executer.commit(commit_query)
-        results = executer.execute(get_query)
+        with self.executer as (conn, cursor):
+            cursor.execute(commit_query)
+            conn.commit()
 
-        assert type(results) == list
-        assert len(results) == 1
+            cursor.execute(get_query)
+            results = cursor.fetchall()
 
-        executer.commit(delete_query)
-        results = executer.execute(get_query)
+            assert type(results) == list
+            assert len(results) == 1
 
-        assert type(results) == list
-        assert len(results) == 0
+            cursor.execute(delete_query)
+            conn.commit()
+            cursor.execute(get_query)
+            results = cursor.fetchall()
 
-        executer.close()
+            assert type(results) == tuple
+            assert len(results) == 0
 
 
 if __name__ == '__main__':

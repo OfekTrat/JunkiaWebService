@@ -1,12 +1,12 @@
 import os
-from typing import Protocol, List
+from typing import List
 from project.src.image import Image
-from multipledispatch import dispatch
 from .exceptions import ImageNotFoundError
-from project.src.db_communicators.idbcommunicator import IDBCommunicator
+from project.src.db_communicators.interfaces.idbcommunicator import IDBCommunicator
+from project.src.db_communicators.interfaces.imultiple_delete_communicator import IMultipleDeleteCommunicator
 
 
-class ImageCommunicator(IDBCommunicator):
+class ImageCommunicator(IDBCommunicator, IMultipleDeleteCommunicator):
     PATH = r"d:\git\JunkiaWebService\project\images"
 
     @classmethod
