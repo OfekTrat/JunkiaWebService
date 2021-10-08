@@ -1,5 +1,0 @@
-
-
-class WrongFindingInputError(Exception):
-    pass
-
