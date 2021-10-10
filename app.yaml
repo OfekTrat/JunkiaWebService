@@ -1,0 +1,6 @@
+runtime: python38
+entrypoint: python main.py
+
+#network:
+#  forwarded_ports:
+#    - 3000/tcp
