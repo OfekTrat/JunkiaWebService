@@ -1,5 +1,7 @@
 import os
 import argparse
+from typing import Tuple
+
 from flask import Flask
 from src.api import API
 from src.db_communicators.mysql_communicator import MySqlUserCommunicator, MySqlFindingCommunicator
@@ -12,11 +14,19 @@ def setup_app_credentials_enc():
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 
 
+def get_running_server(is_test: bool) -> Tuple[str, int]:
+    if is_test:
+        return "localhost", 1234
+    else:
+        return "0.0.0.0", 8080
+
+
 def create_argparse() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--mysql-host", default="1.1.1.1")
     parser.add_argument("--mysql-user", default="junkia_user")
     parser.add_argument("--mysql-password", default="junkia_user")
+    parser.add_argument("--test", action="store_true", default=False)
     return parser
 
 
@@ -46,8 +56,9 @@ def main():
 
     api = API(user_communicator, finding_communicator, image_communicator)
 
+    host, port = get_running_server(args.test)
     app = create_app(api)
-    app.run()
+    app.run(host=host, port=port)
 
 
 if __name__ == '__main__':
