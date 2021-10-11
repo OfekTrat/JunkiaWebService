@@ -39,7 +39,7 @@ def create_app(api: API) -> Flask:
     app.add_url_rule("/user", methods=["POST"], view_func=api.add_user)
     app.add_url_rule("/user/<user_id>", methods=["GET"], view_func=api.get_user)
     app.add_url_rule("/user/<user_id>", methods=["PUT"], view_func=api.update_user)
-    app.add_url_rule("/image/<image_hash>", methods=["GET"], view_func=api.get_image)
+    # app.add_url_rule("/image/<image_hash>", methods=["GET"], view_func=api.get_image)
     return app
 
 
