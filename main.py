@@ -9,7 +9,7 @@ from src.db_communicators.mysql_communicator.mysql_executor.iexecutor import IEx
 from src.db_communicators.mysql_communicator.mysql_executor.mysql_cloud_executor import MyCloudSQLExecutor
 
 
-def setup_app_credentials_enc():
+def setup_app_credentials_env():
     credential_path = "google_cloud/junkiapp-619f247751a4.json"
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 
@@ -39,7 +39,7 @@ def create_app(api: API) -> Flask:
     app.add_url_rule("/user", methods=["POST"], view_func=api.add_user)
     app.add_url_rule("/user/<user_id>", methods=["GET"], view_func=api.get_user)
     app.add_url_rule("/user/<user_id>", methods=["PUT"], view_func=api.update_user)
-    # app.add_url_rule("/image/<image_hash>", methods=["GET"], view_func=api.get_image)
+    app.add_url_rule("/image/<image_hash>", methods=["GET"], view_func=api.get_image)
     return app
 
 
@@ -52,11 +52,10 @@ def get_mysql_communicator(args) -> IExecutor:
 
 def main():
     parser = create_argparse()
+    setup_app_credentials_env()
+
     args = parser.parse_args()
     mysql_executor = get_mysql_communicator(args)
-
-    credential_path = "google_cloud/junkiapp-619f247751a4.json"
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
     
     user_communicator = MySqlUserCommunicator(mysql_executor)
     finding_communicator = MySqlFindingCommunicator(mysql_executor)

@@ -1,3 +1,4 @@
+import os
 from flask import request
 from src.db_communicators.interfaces import IUserCommunicator, IImageCommunicator, IFindingCommunicator
 from src.user import User
@@ -5,8 +6,7 @@ from src.finding import Finding
 from .location import Location
 from src.message_handler import MessageHandler
 from src.db_communicators.mysql_communicator import FindingNotFoundError, UserAlreadyExistsError, UserNotFoundError
-
-
+from src.db_communicators.image_communicator.exceptions import ImageNotFoundError
 
 
 class API:
@@ -87,4 +87,15 @@ class API:
                 return MessageHandler.get_error_msg(str(e)), 400
         else:
             MessageHandler.get_error_msg("Something went wrong"), 400
+
+    def get_image(self, image_hash: str):
+        try:
+            image = self.__image_comm.get(image_hash)
+            return image.to_json()
+        except ImageNotFoundError as e:
+            return MessageHandler.get_error_msg("File Not Found"), 404
+        except Exception as e:
+            return MessageHandler.get_error_msg(str(e))
+
+
 
