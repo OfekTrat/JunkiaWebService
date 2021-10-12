@@ -9,6 +9,7 @@ from main import create_app
 from src.api import API
 from src.db_communicators import MySQLExecutor, MySqlUserCommunicator, MySqlFindingCommunicator, ImageCommunicator
 from src.image import Image
+from src.db_communicators.image_communicator.exceptions import ImageNotFoundError, ImageAlreadyExistsError
 
 executor = MySQLExecutor("localhost", "root", "OfekT2021")
 image_communicator = ImageCommunicator()
@@ -69,6 +70,41 @@ class TestImageAPI(unittest.TestCase):
 
         assert resp.status_code == 200
         assert resp_json["error"] == "Image Already Exists"
+
+    def test_delete(self):
+        self.__change_current_dir()
+        client = self.__get_client()
+        image = Image("test_delete", b"test_deleting")
+        image_communicator.upload(image)
+        images_to_delete = {"hashes": [image.hash]}
+        resp = client.delete("/image", data=json.dumps(images_to_delete), content_type="application/json")
+        resp_json = self.__load_response(resp)
+        resp_get = client.get(f"/image/{image.hash}")
+
+        assert resp.status_code == 200
+        assert resp_json["msg"] == "Successful Delete"
+        assert resp_get.status_code == 404
+
+    def test_multiple(self):
+        self.__change_current_dir()
+        client = self.__get_client()
+        image1 = Image("test_delete_multiple1", b"test1")
+        image2 = Image("test_delete_multiple2", b"test2")
+        image_communicator.upload(image1)
+        image_communicator.upload(image2)
+
+        images_to_delete = {"hashes": [image1.hash, image2.hash]}
+        resp = client.delete("/image", data=json.dumps(images_to_delete), content_type="application/json")
+        resp_json = self.__load_response(resp)
+
+        resp_get1 = client.get(f"/image/{image1.hash}")
+        resp_get2 = client.get(f"/image/{image2.hash}")
+
+        assert resp.status_code == 200
+        assert resp_json["msg"] == "Successful Delete"
+        assert resp_get1.status_code == 404
+        assert resp_get2.status_code == 404
+
 
 
 

@@ -42,6 +42,7 @@ def create_app(api: API) -> Flask:
     app.add_url_rule("/user/<user_id>", methods=["PUT"], view_func=api.update_user)
     app.add_url_rule("/image/<image_hash>", methods=["GET"], view_func=api.get_image)
     app.add_url_rule("/image", methods=["POST"], view_func=api.upload_image)
+    app.add_url_rule("/image", methods=["DELETE"], view_func=api.delete_image)
     return app
 
 

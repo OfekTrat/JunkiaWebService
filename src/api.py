@@ -109,5 +109,16 @@ class API:
         else:
             return MessageHandler.get_error_msg("Something went wrong"), 400
 
+    def delete_image(self):
+        if request.method == "DELETE":
+            try:
+                print(request)
+                hashes_to_delete = request.json["hashes"]
+                self.__image_comm.delete_multiple(hashes_to_delete)
+                return MessageHandler.get_success_msg("Successful Delete")
+            except Exception as e:
+                return MessageHandler.get_error_msg(str(e)), 400
+        else:
+            return MessageHandler.get_error_msg("Something went wrong"), 400
 
 
