@@ -5,6 +5,10 @@ from src.db_communicators import ImageCommunicator
 from src.db_communicators.image_communicator.exceptions import ImageNotFoundError
 
 
+if os.getcwd() != r"d:\git\junkiawebservice":
+    os.chdir(r"d:\git\junkiawebservice")
+
+
 class TestImageCommunicator(unittest.TestCase):
     def test_get_image(self):
         image_hash = "test"

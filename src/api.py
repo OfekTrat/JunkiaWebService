@@ -3,10 +3,11 @@ from flask import request
 from src.db_communicators.interfaces import IUserCommunicator, IImageCommunicator, IFindingCommunicator
 from src.user import User
 from src.finding import Finding
+from .image import Image
 from .location import Location
 from src.message_handler import MessageHandler
 from src.db_communicators.mysql_communicator import FindingNotFoundError, UserAlreadyExistsError, UserNotFoundError
-from src.db_communicators.image_communicator.exceptions import ImageNotFoundError
+from src.db_communicators.image_communicator.exceptions import ImageNotFoundError, ImageAlreadyExistsError
 
 
 class API:
@@ -96,6 +97,17 @@ class API:
             return MessageHandler.get_error_msg("File Not Found"), 404
         except Exception as e:
             return MessageHandler.get_error_msg(str(e))
+
+    def upload_image(self):
+        if request.method == "POST":
+            try:
+                image = Image.from_json(request.json)
+                self.__image_comm.upload(image)
+                return MessageHandler.get_success_msg("Successful Image Upload")
+            except ImageAlreadyExistsError as e:
+                return MessageHandler.get_error_msg("Image Already Exists"), 200
+        else:
+            return MessageHandler.get_error_msg("Something went wrong"), 400
 
 
 
