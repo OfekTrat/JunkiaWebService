@@ -3,6 +3,7 @@ import argparse
 from typing import Tuple
 from flask import Flask
 from src.api import API
+from src.db_communicators.image_communicator.image_cloud_communicator import ImageCloudCommunicator
 from src.db_communicators.interfaces import IUserCommunicator, IFindingCommunicator, IImageCommunicator
 from src.db_communicators.mysql_communicator import MySqlUserCommunicator, MySqlFindingCommunicator
 from src.db_communicators import ImageCommunicator, MySQLExecutor
@@ -52,8 +53,8 @@ def get_communicators(args) -> Tuple[IUserCommunicator, IFindingCommunicator, II
         return MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), ImageCommunicator()
     else:
         executor = MyCloudSQLExecutor(args.mysql_host, args.mysql_user, args.mysql_password)
-        # Change here to google cloud image communicator
-        return MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), ImageCommunicator()
+        bucket_name = "junkiapp_finding_images"
+        return MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), ImageCloudCommunicator(bucket_name)
 
 
 def main():
@@ -68,6 +69,8 @@ def main():
     host, port = get_running_server(args.test)
     app = create_app(api)
     app.run(host=host, port=port)
+
+
 
 
 if __name__ == '__main__':
