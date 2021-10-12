@@ -1,7 +1,7 @@
 import os
 from typing import List
 from src.image import Image
-from .exceptions import ImageNotFoundError
+from .exceptions import ImageNotFoundError, ImageAlreadyExistsError
 from ..interfaces import IImageCommunicator
 
 
@@ -24,8 +24,11 @@ class ImageCommunicator(IImageCommunicator):
     def upload(cls, image: Image):
         path = cls.__get_path(image.hash)
 
-        with open(path, "wb") as f:
-            f.write(image.data)
+        if not os.path.exists(path):
+            with open(path, "wb") as f:
+                f.write(image.data)
+        else:
+            raise ImageAlreadyExistsError()
 
     @classmethod
     def delete(cls, image_hash: str):
