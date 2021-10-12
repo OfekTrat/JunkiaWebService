@@ -1,3 +1,4 @@
 pymysql
 flask
 cloud-sql-python-connector[driver]
+google-cloud-storage
