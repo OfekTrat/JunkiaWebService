@@ -1,7 +1,8 @@
-from typing import List, Union
+from typing import List
 from ..interfaces import IImageCommunicator
 from ...image import Image
 from google.cloud import storage
+from .exceptions import ImageNotFoundError, ImageAlreadyExistsError
 
 
 class ImageCloudCommunicator(IImageCommunicator):
@@ -11,10 +12,13 @@ class ImageCloudCommunicator(IImageCommunicator):
         self.__tmp_filename = "./tmp_file"
 
     def get(self, image_hash: str) -> Image:
-        blob = self.__bucket.blob(image_hash)
-        image_data = blob.download_as_bytes()
-        image = Image(image_hash, image_data)
-        return image
+        try:
+            blob = self.__bucket.blob(image_hash)
+            image_data = blob.download_as_bytes()
+            image = Image(image_hash, image_data)
+            return image
+        except Exception as e:
+            raise ImageNotFoundError()
 
     def upload(self, image: Image):
         blob = self.__bucket.blob(image.hash)
