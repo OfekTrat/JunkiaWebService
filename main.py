@@ -18,7 +18,7 @@ def setup_app_credentials_env():
 
 def get_running_server(is_test: bool) -> Tuple[str, int]:
     if is_test:
-        return "localhost", 1234
+        return "0.0.0.0", 1234
     else:
         return "0.0.0.0", 8080
 
@@ -41,6 +41,7 @@ def create_app(api: API) -> Flask:
     app.add_url_rule("/user", methods=["POST"], view_func=api.add_user)
     app.add_url_rule("/user/<user_id>", methods=["GET"], view_func=api.get_user)
     app.add_url_rule("/user/<user_id>", methods=["PUT"], view_func=api.update_user)
+    app.add_url_rule("/user/<user_id>", methods=["DELETE"], view_func=api.delete_user)
     app.add_url_rule("/image/<image_hash>", methods=["GET"], view_func=api.get_image)
     app.add_url_rule("/image", methods=["POST"], view_func=api.upload_image)
     app.add_url_rule("/image", methods=["DELETE"], view_func=api.delete_image)
