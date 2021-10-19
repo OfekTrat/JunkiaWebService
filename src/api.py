@@ -32,7 +32,7 @@ class API:
             self.__finding_comm.delete(finding_id)
             return MessageHandler.get_success_msg(f"Successful deletion of {finding_id}")
         else:
-            return MessageHandler.get_error_msg("Something went wrong")
+            return MessageHandler.get_error_msg("Something went wrong"), 400
 
     def get_finding_by_radius(self):
         try:
@@ -59,7 +59,7 @@ class API:
             self.__user_comm.upload(user)
             return MessageHandler.get_success_msg(f"Successful adding user {user.id}")
         except UserAlreadyExistsError as e:
-            return MessageHandler.get_error_msg(str(e)), 400
+            return MessageHandler.get_error_msg(str(e)), 302
         except KeyError as e:
             return MessageHandler.get_error_msg("Probably Bad Request"), 400
         except AttributeError:
@@ -88,15 +88,27 @@ class API:
                 return MessageHandler.get_error_msg(str(e)), 400
         else:
             MessageHandler.get_error_msg("Something went wrong"), 400
+    
+    def delete_user(self, user_id: str):
+        if request.method == "DELETE":
+            try:
+                self.__user_comm.delete(user_id)
+                return MessageHandler.get_success_msg(f"Successfully deleted {user_id}")
+            except UserNotFoundError as e:
+                return MessageHandler.get_error_msg(str(e)), 404
+            except Exception as e:
+                return MessageHandler.get_error_msg(str(e)), 400
+        else:
+            MessageHandler.get_error_msg("Something went wrong"), 400
 
     def get_image(self, image_hash: str):
         try:
             image = self.__image_comm.get(image_hash)
-            return image.to_json()
+            return MessageHandler.get_data_msg(image.to_json())
         except ImageNotFoundError as e:
             return MessageHandler.get_error_msg("File Not Found"), 404
         except Exception as e:
-            return MessageHandler.get_error_msg(str(e))
+            return MessageHandler.get_error_msg(str(e)), 400
 
     def upload_image(self):
         if request.method == "POST":
@@ -105,7 +117,7 @@ class API:
                 self.__image_comm.upload(image)
                 return MessageHandler.get_success_msg("Successful Image Upload")
             except ImageAlreadyExistsError as e:
-                return MessageHandler.get_error_msg("Image Already Exists"), 200
+                return MessageHandler.get_error_msg("Image Already Exists"), 302
         else:
             return MessageHandler.get_error_msg("Something went wrong"), 400
 

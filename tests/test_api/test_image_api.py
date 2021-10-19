@@ -34,7 +34,7 @@ class TestImageAPI(unittest.TestCase):
         self.__change_current_dir()
         client = self.__get_client()
         resp: Response = client.get(f"/image/test")
-        json_data = self.__load_response(resp)
+        json_data = self.__load_response(resp)["result"]
 
         assert resp.status_code == 200
         assert json_data["hash"] == "test"
@@ -68,7 +68,7 @@ class TestImageAPI(unittest.TestCase):
         resp = client.post("/image", data=json.dumps(image.to_json()), content_type="application/json")
         resp_json = self.__load_response(resp)
 
-        assert resp.status_code == 200
+        assert resp.status_code == 302
         assert resp_json["error"] == "Image Already Exists"
 
     def test_delete(self):

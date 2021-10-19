@@ -4,7 +4,7 @@ from random import randint
 from src.api import API
 from main import create_app
 from src.db_communicators.mysql_communicator.mysql_executor import MySQLExecutor
-from src.db_communicators.mysql_communicator import MySqlFindingCommunicator
+from src.db_communicators.mysql_communicator import MySqlFindingCommunicator, UserNotFoundError
 from src.db_communicators import ImageCommunicator
 from src.user import User
 from src.location import Location
@@ -17,7 +17,7 @@ user_comm = MySqlUserCommunicator(executor)
 app = create_app(api)
 
 
-class MyTestCase(unittest.TestCase):
+class TestUserApi(unittest.TestCase):
     @staticmethod
     def __get_client():
         return app.test_client()
@@ -82,6 +82,15 @@ class MyTestCase(unittest.TestCase):
         self.assertNotEqual(prev_user.tags, now_user.tags)
         self.assertNotEqual(prev_user.location, now_user.location)
         self.assertNotEqual(prev_user.radius, now_user.radius)
+
+    def test_delete_user(self):
+        client = self.__get_client()
+        user = User("test_delete_api", ["a", "b"], Location(1,1), 4, "1234")
+        user_comm.upload(user)
+
+        client.delete(f"/user/{user.id}")
+        with self.assertRaises(UserNotFoundError):
+            user_comm.get(user.id)
 
 
 if __name__ == '__main__':
