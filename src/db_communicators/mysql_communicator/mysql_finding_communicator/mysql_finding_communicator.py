@@ -58,8 +58,14 @@ class MySqlFindingCommunicator(MySQLCommunicatorAbs, IFindingCommunicator):
     def get_by_radius(self, radius: int, location: Location) -> List[Finding]:
         query = Queries.FIND_BY_RADIUS.value.format(radius=radius, longitude=location.longitude,
                                                     latitude=location.latitude)
+        found_findings = list()
 
         with self.__executor as (conn, cursor):
             cursor.execute(query)
             results = cursor.fetchall()
-            return [Finding.create_from_json(res) for res in results]
+
+            for res in results:
+                res["tags"] = self._str_to_tags(res["tags"])
+                found_findings.append(Finding.create_from_json(res))
+
+        return found_findings
