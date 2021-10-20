@@ -36,18 +36,6 @@ class MyTestCase(unittest.TestCase):
             finding.tags = ["123", "sdf"]
 
     def test_finding_creation_from_json(self):
-        simple_finding_json = {
-            "longitude": self.GOOD_LONGITUDE,
-            "latitude": self.GOOD_LATITUDE,
-            "tags": self.GOOD_TAGS
-        }
-
-        simple_finding_json_with_image_hash = {
-            "longitude": self.GOOD_LONGITUDE,
-            "latitude": self.GOOD_LATITUDE,
-            "tags": self.GOOD_TAGS,
-            "image_hash": self.IMAGE_HASH
-        }
         finding_json_with_existence_id = {
             "id": "test_id",
             "longitude": self.GOOD_LONGITUDE,
@@ -55,16 +43,6 @@ class MyTestCase(unittest.TestCase):
             "tags": self.GOOD_TAGS,
             "image_hash": self.IMAGE_HASH
         }
-
-        finding = Finding.create_from_json(simple_finding_json)
-        self.assertEqual(finding.location, self.GOOD_LOCATION)
-        self.assertEqual(finding.tags, self.GOOD_TAGS)
-        self.assertEqual(finding.image_hash, None)
-
-        finding2 = Finding.create_from_json(simple_finding_json_with_image_hash)
-        self.assertEqual(finding2.location, self.GOOD_LOCATION)
-        self.assertEqual(finding2.tags, self.GOOD_TAGS)
-        self.assertEqual(finding2.image_hash, self.IMAGE_HASH)
 
         finding3 = Finding.create_from_json(finding_json_with_existence_id)
         self.assertEqual(finding3.location, self.GOOD_LOCATION)
@@ -80,6 +58,18 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(finding_as_json["latitude"], self.GOOD_LATITUDE)
         self.assertEqual(finding_as_json["tags"], self.GOOD_TAGS)
         self.assertEqual(finding_as_json["image_hash"], None)
+
+    def test_creating_from_false_json(self):
+        json = {
+            "id": "test_id",
+            "longitude": self.GOOD_LONGITUDE,
+            "latitude": self.GOOD_LATITUDE,
+            "tags": ",".join(self.GOOD_TAGS),
+            "image_hash": self.IMAGE_HASH
+        }
+
+        with self.assertRaises(WrongFindingInputError):
+            finding = Finding.create_from_json(json)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union, Dict, Optional
+from typing import List, Tuple, Union, Dict, Optional, Any
 from .finding_exceptions import WrongFindingInputError
 from datetime import datetime
 from ..location import Location
@@ -43,8 +43,8 @@ class Finding:
         self.__image_hash = image_hash
 
     @staticmethod
-    def __validate_tags(tags: List[str]) -> List[str]:
-        if not tags:
+    def __validate_tags(tags: Any) -> List[str]:
+        if not tags or not isinstance(tags, list):
             raise WrongFindingInputError("Missing Tags")
 
         return tags
@@ -58,16 +58,19 @@ class Finding:
             "image_hash": self.image_hash
         }
 
-    @staticmethod
-    def create_from_json(finding_as_json: Dict[str, Union[str, float, List[str], Dict[str, float], None]]) -> 'Finding':
-        if "image_hash" not in finding_as_json.keys():
-            finding_as_json["image_hash"] = None
-
-        if "id" not in finding_as_json.keys():
-            finding_as_json["id"] = None
-
-        try:
+    @classmethod
+    def create_from_json(cls, finding_as_json: Dict[str, Union[str, float, List[str],
+                                                               Dict[str, float], None]]) -> 'Finding':
+        if cls.__validate_json(finding_as_json) and cls.__validate_tags(finding_as_json['tags']):
             location = Location(finding_as_json["longitude"], finding_as_json["latitude"])
-            return Finding(location, finding_as_json["tags"], finding_as_json["image_hash"], finding_as_json["id"])
-        except AttributeError as e:
-            raise WrongFindingInputError("Json as Finding is malformed")
+            finding_id = finding_as_json["id"]
+            tags = finding_as_json["tags"]
+            image_hash = finding_as_json["image_hash"]
+            return Finding(location, tags, image_hash, finding_id)
+        else:
+            raise WrongFindingInputError("Wrong Json")
+
+    @classmethod
+    def __validate_json(cls, finding_json: Dict[str, Union[str, float, List[str], Dict[str, float], None]]) -> bool:
+        return "id" in finding_json and "image_hash" in finding_json and "longitude" in finding_json and \
+               "latitude" in finding_json and "tags" in finding_json
