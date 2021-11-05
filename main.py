@@ -1,35 +1,16 @@
 import os
-import argparse
 from typing import Tuple
 from flask import Flask
 from src.api import API
-from src.db_communicators.image_communicator.image_cloud_communicator import ImageCloudCommunicator
 from src.db_communicators.interfaces import IUserCommunicator, IFindingCommunicator, IImageCommunicator
 from src.db_communicators.mysql_communicator import MySqlUserCommunicator, MySqlFindingCommunicator
 from src.db_communicators import ImageCommunicator, MySQLExecutor
 from src.db_communicators.mysql_communicator.mysql_executor.iexecutor import IExecutor
-from src.db_communicators.mysql_communicator.mysql_executor.mysql_cloud_executor import MyCloudSQLExecutor
+from time import sleep
 
 
-def setup_app_credentials_env():
-    credential_path = "google_cloud/junkiapp-619f247751a4.json"
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
-
-
-def get_running_server(is_test: bool) -> Tuple[str, int]:
-    if is_test:
-        return "0.0.0.0", 1234
-    else:
-        return "0.0.0.0", 8080
-
-
-def create_argparse() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--mysql-host", default="localhost")
-    parser.add_argument("--mysql-user")
-    parser.add_argument("--mysql-password")
-    parser.add_argument("--test", action="store_true", default=False)
-    return parser
+def get_running_server() -> Tuple[str, int]:
+    return "0.0.0.0", 3000
 
 
 def create_app(api: API) -> Flask:
@@ -48,30 +29,30 @@ def create_app(api: API) -> Flask:
     return app
 
 
-def get_communicators(args) -> Tuple[IUserCommunicator, IFindingCommunicator, IImageCommunicator]:
-    if args.test:
-        executor = MySQLExecutor(args.mysql_host, args.mysql_user, args.mysql_password)
-        return MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), ImageCommunicator()
-    else:
-        executor = MyCloudSQLExecutor(args.mysql_host, args.mysql_user, args.mysql_password)
-        bucket_name = "junkiapp_finding_images"
-        return MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), ImageCloudCommunicator(bucket_name)
+def get_communicators(executor: IExecutor) -> Tuple[IUserCommunicator, IFindingCommunicator, IImageCommunicator]:
+    return MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), ImageCommunicator()
+
+
+def test_conn(executor: IExecutor):
+    print("Waiting for mysql server to fully upload")
+    while True:
+        try:
+            with executor as (conn, cur):
+                print("successful connection")
+                break
+        except Exception as e:
+            sleep(1)
 
 
 def main():
-    parser = create_argparse()
-    setup_app_credentials_env()
-    args = parser.parse_args()
-    
-    user_communicator, finding_communicator, image_communicator = get_communicators(args)
-
+    server, user, password = os.environ["MYSQL_SERVER"], os.environ["MYSQL_USER"], os.environ["MYSQL_PASSWORD"]
+    executor = MySQLExecutor(server, user, password)
+    test_conn(executor)
+    user_communicator, finding_communicator, image_communicator = get_communicators(executor)
     api = API(user_communicator, finding_communicator, image_communicator)
-
-    host, port = get_running_server(args.test)
+    host, port = get_running_server()
     app = create_app(api)
     app.run(host=host, port=port)
-
-
 
 
 if __name__ == '__main__':

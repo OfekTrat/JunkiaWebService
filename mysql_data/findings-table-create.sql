@@ -1,0 +1,1 @@
+    CREATE TABLE junkia.findings (id CHAR(15), longitude FLOAT, latitude FLOAT, image_hash VARCHAR(256), tags VARCHAR(1000), PRIMARY KEY (id));

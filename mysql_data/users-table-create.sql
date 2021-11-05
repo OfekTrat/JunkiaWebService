@@ -1,0 +1,1 @@
+CREATE TABLE junkia.users (id VARCHAR(18), tags VARCHAR(1000), longitude FLOAT, latitude FLOAT, radius INT, last_notified VARCHAR(15), PRIMARY KEY (id));
