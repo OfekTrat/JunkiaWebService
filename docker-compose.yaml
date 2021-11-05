@@ -11,6 +11,8 @@ services:
       - ./env/service.env
     depends_on:
       - mysql
+    volumes:
+      - ./:/junkia-service
 
   mysql:
     build:
