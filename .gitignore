@@ -6,3 +6,5 @@
 **/.pytest_cache/**
 images/*
 app.yaml
+env/*
+.dockerignore
