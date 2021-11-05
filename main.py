@@ -45,14 +45,15 @@ def test_conn(executor: IExecutor):
 
 
 def main():
-    server, user, password = os.environ["MYSQL_SERVER"], os.environ["MYSQL_USER"], os.environ["MYSQL_PASSWORD"]
+    server, user, password, debug = os.environ["MYSQL_SERVER"], os.environ["MYSQL_USER"], \
+                                    os.environ["MYSQL_PASSWORD"], os.environ["DEBUG_MODE"]
     executor = MySQLExecutor(server, user, password)
     test_conn(executor)
     user_communicator, finding_communicator, image_communicator = get_communicators(executor)
     api = API(user_communicator, finding_communicator, image_communicator)
     host, port = get_running_server()
     app = create_app(api)
-    app.run(host=host, port=port)
+    app.run(host=host, port=port, debug=debug)
 
 
 if __name__ == '__main__':
