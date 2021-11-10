@@ -1,1 +1,3 @@
 CREATE TABLE junkia.users (id VARCHAR(18), tags VARCHAR(1000), longitude FLOAT, latitude FLOAT, radius INT, last_notified VARCHAR(15), PRIMARY KEY (id));
+INSERT INTO junkia.users (id, tags, longitude, latitude, radius, last_notified) VALUES ('test', 'a,b,v', 1.2, -2, 10, 12345678);
+INSERT INTO junkia.users (id, tags, longitude, latitude, radius, last_notified) VALUES ('test_updating', '-,3,6,9', -36, -42, 4, 1631208655);

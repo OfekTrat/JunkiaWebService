@@ -1,36 +1,28 @@
 import os
-from typing import Tuple
-from flask import Flask
-from src.api import API
-from src.db_communicators.interfaces import IUserCommunicator, IFindingCommunicator, IImageCommunicator
-from src.db_communicators.mysql_communicator import MySqlUserCommunicator, MySqlFindingCommunicator
-from src.db_communicators import ImageCommunicator, MySQLExecutor
-from src.db_communicators.mysql_communicator.mysql_executor.iexecutor import IExecutor
 from time import sleep
+from typing import Tuple
+
+from app_initializer import AppInitializer
+
+from services.user_service import UserService
+from services.image_service import ImageService
+from services.finding_service import FindingService
+
+from utils.mysql.mysql_executor import IExecutor
+from utils.mysql.mysql_executor import MySQLExecutor
+
+from communicators.user_communicators import MySqlUserCommunicator
+from communicators.image_communicators import SimpleImageCommunicator
+from communicators.finding_communicators import MySqlFindingCommunicator
+from communicators.interfaces import IUserCommunicator, IFindingCommunicator, IImageCommunicator
 
 
 def get_running_server() -> Tuple[str, int]:
     return "0.0.0.0", 3000
 
 
-def create_app(api: API) -> Flask:
-    app = Flask(__name__)
-    app.add_url_rule("/finding/<finding_id>", methods=["GET"], view_func=api.get_finding)
-    app.add_url_rule("/finding/<finding_id>", methods=["DELETE"], view_func=api.delete_finding)
-    app.add_url_rule("/finding/by_radius", methods=["POST"], view_func=api.get_finding_by_radius)
-    app.add_url_rule("/finding", methods=["POST"], view_func=api.upload_finding)
-    app.add_url_rule("/user", methods=["POST"], view_func=api.add_user)
-    app.add_url_rule("/user/<user_id>", methods=["GET"], view_func=api.get_user)
-    app.add_url_rule("/user/<user_id>", methods=["PUT"], view_func=api.update_user)
-    app.add_url_rule("/user/<user_id>", methods=["DELETE"], view_func=api.delete_user)
-    app.add_url_rule("/image/<image_hash>", methods=["GET"], view_func=api.get_image)
-    app.add_url_rule("/image", methods=["POST"], view_func=api.upload_image)
-    app.add_url_rule("/image", methods=["DELETE"], view_func=api.delete_image)
-    return app
-
-
 def get_communicators(executor: IExecutor) -> Tuple[IUserCommunicator, IFindingCommunicator, IImageCommunicator]:
-    return MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), ImageCommunicator()
+    return MySqlUserCommunicator(executor), MySqlFindingCommunicator(executor), SimpleImageCommunicator()
 
 
 def test_conn(executor: IExecutor):
@@ -50,9 +42,19 @@ def main():
     executor = MySQLExecutor(server, user, password)
     test_conn(executor)
     user_communicator, finding_communicator, image_communicator = get_communicators(executor)
-    api = API(user_communicator, finding_communicator, image_communicator)
+
     host, port = get_running_server()
-    app = create_app(api)
+
+    finding_service = FindingService(finding_communicator)
+    user_service = UserService(user_communicator)
+    image_service = ImageService(image_communicator)
+
+    app_initializer = AppInitializer()
+    app_initializer.add_finding_service(finding_service)
+    app_initializer.add_user_service(user_service)
+    app_initializer.add_image_service(image_service)
+
+    app = app_initializer.get_app()
     app.run(host=host, port=port, debug=debug)
 
 

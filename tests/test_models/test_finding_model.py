@@ -1,5 +1,6 @@
-from src.finding import Finding, WrongFindingInputError
-from src.location import Location
+from models.finding import Finding
+from services.exceptions import WrongFindingInputError
+from models import Location
 import unittest
 
 

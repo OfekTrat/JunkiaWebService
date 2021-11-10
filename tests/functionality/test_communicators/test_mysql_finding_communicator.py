@@ -1,21 +1,22 @@
+import os
 import unittest
-from src.finding import Finding
-from src.db_communicators.mysql_communicator import MySqlFindingCommunicator
-from src.db_communicators.mysql_communicator.mysql_executor import MySQLExecutor
-from src.location import Location
-from src.db_communicators.mysql_communicator import FindingNotFoundError
+from models.finding import Finding
+from utils.mysql.mysql_executor import MySQLExecutor
+from models.location import Location
+from communicators.finding_communicators import MySqlFindingCommunicator
+from services.exceptions import FindingNotFoundError
 
 
 class TestFindingCommunicator(unittest.TestCase):
-    HOST = "localhost"
-    USER = "root"
-    PASS = "OfekT2021"
-    executer = MySQLExecutor(HOST, USER, PASS)
-    finding_comm = MySqlFindingCommunicator(executer)
+    def __init__(self, *args, **kwargs):
+        super(TestFindingCommunicator, self).__init__(*args, **kwargs)
+        host, user, password = os.environ["MYSQL_SERVER"], os.environ["MYSQL_USER"], os.environ["MYSQL_PASSWORD"]
+        self.__executor = MySQLExecutor(host ,user, password)
+        self.__finding_comm = MySqlFindingCommunicator(self.__executor)
 
     def test_get(self):
         finding_id = "test"
-        finding = self.finding_comm.get(finding_id)
+        finding = self.__finding_comm.get(finding_id)
 
         assert finding.id == finding_id
         assert finding.tags == ["tag1", "tag2"]
@@ -32,9 +33,9 @@ class TestFindingCommunicator(unittest.TestCase):
             tags=list("abc"),
             image_hash="asdf",
         )
-        self.finding_comm.upload(finding)
+        self.__finding_comm.upload(finding)
 
-        with self.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(get_query)
             result = cursor.fetchall()
 
@@ -62,10 +63,10 @@ class TestFindingCommunicator(unittest.TestCase):
             tags=list("abc"),
             image_hash="asdf",
         )
-        self.finding_comm.upload(finding)
-        self.finding_comm.delete(finding.id)
+        self.__finding_comm.upload(finding)
+        self.__finding_comm.delete(finding.id)
 
-        with self.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(get_query)
             results = cursor.fetchall()
 
@@ -86,11 +87,11 @@ class TestFindingCommunicator(unittest.TestCase):
             tags=list("abc"),
             image_hash="asdf",
         )
-        self.finding_comm.upload(finding1)
-        self.finding_comm.upload(finding2)
-        self.finding_comm.delete_multiple([finding1.id, finding2.id])
+        self.__finding_comm.upload(finding1)
+        self.__finding_comm.upload(finding2)
+        self.__finding_comm.delete_multiple([finding1.id, finding2.id])
 
-        with self.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(get_query)
             results = cursor.fetchall()
 
@@ -100,7 +101,7 @@ class TestFindingCommunicator(unittest.TestCase):
     def test_get_finding_by_close_radius(self):
         radius = 10
         location = Location(1.000001, 0.99999)
-        results = self.finding_comm.get_by_radius(radius, location)
+        results = self.__finding_comm.get_by_radius(radius, location)
 
         assert type(results) == list
         assert len(results) == 1
@@ -109,14 +110,14 @@ class TestFindingCommunicator(unittest.TestCase):
     def test_get_finding_by_far_radius(self):
         radius = 10
         location = Location(-90.2, 89.993)
-        results = self.finding_comm.get_by_radius(radius, location)
+        results = self.__finding_comm.get_by_radius(radius, location)
 
         assert type(results) == list
         assert len(results) == 0
 
     def test_get_nonexistant_finding(self):
         with self.assertRaises(FindingNotFoundError):
-            self.finding_comm.get("4567ujkp")
+            self.__finding_comm.get("4567ujkp")
 
 
 if __name__ == '__main__':

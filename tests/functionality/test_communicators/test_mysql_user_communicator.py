@@ -1,24 +1,23 @@
+import os
 import unittest
 import random
-
-from src.db_communicators.mysql_communicator import UserNotFoundError, \
-    UserAlreadyExistsError
-from src.location import Location
-from src.user import User
-from src.db_communicators.mysql_communicator import MySqlUserCommunicator
-from src.db_communicators.mysql_communicator.mysql_executor import MySQLExecutor
+from models.location import Location
+from models.user import User
+from utils.mysql.mysql_executor import MySQLExecutor
+from communicators.user_communicators import MySqlUserCommunicator
+from services.exceptions import UserNotFoundError, UserAlreadyExistsError
 
 
 class TestUserCommunicator(unittest.TestCase):
-    HOST = "localhost"
-    USER = "root"
-    PASS = "OfekT2021"
-    executer = MySQLExecutor(HOST, USER, PASS)
-    user_comm = MySqlUserCommunicator(executer)
+    def __init__(self, *args, **kwargs):
+        super(TestUserCommunicator, self).__init__(*args, **kwargs)
+        host, user, password = os.environ["MYSQL_SERVER"], os.environ["MYSQL_USER"], os.environ["MYSQL_PASSWORD"]
+        self.__executor = MySQLExecutor(host, user, password)
+        self.__user_comm = MySqlUserCommunicator(self.__executor)
 
     def test_get(self):
         user_id = "test"
-        user = self.user_comm.get(user_id)
+        user = self.__user_comm.get(user_id)
 
         assert user.id == user_id
         assert user.tags == ["a", "b", "v"]
@@ -33,9 +32,9 @@ class TestUserCommunicator(unittest.TestCase):
         user = User(id="test_upload", tags=list("123"), location=Location(-10.22, 56.33),
                     radius=12, last_notified="12345678")
 
-        self.user_comm.upload(user)
+        self.__user_comm.upload(user)
 
-        with self.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(get_query)
             result = cursor.fetchall()[0]
             cursor.execute(delete_query)
@@ -53,13 +52,13 @@ class TestUserCommunicator(unittest.TestCase):
         upload_user = "INSERT INTO junkia.users (id, tags, longitude, latitude, radius, last_notified) " \
                       "VALUES ('test_delete', '1,2,3', 1, 1, 1, '1234y')"
 
-        with self.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(upload_user)
             conn.commit()
 
-        self.user_comm.delete('test_delete')
+        self.__user_comm.delete('test_delete')
 
-        with self.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(get_user)
             result = cursor.fetchall()
 
@@ -73,9 +72,9 @@ class TestUserCommunicator(unittest.TestCase):
                     location=Location(random.randint(-1800, 1800)/10, random.randint(-900, 900)/10),
                     radius=random.randint(10, 20), last_notified=str(random.randint(1000, 9999)))
 
-        self.user_comm.update(user)
+        self.__user_comm.update(user)
 
-        with self.executer as (conn, cursor):
+        with self.__executor as (conn, cursor):
             cursor.execute(get_result)
             result = cursor.fetchall()[0]
 
@@ -91,14 +90,14 @@ class TestUserCommunicator(unittest.TestCase):
 
     def test_get_nonexistant_user(self):
         with self.assertRaises(UserNotFoundError):
-            self.user_comm.get("456uhnkl")
+            self.__user_comm.get("456uhnkl")
 
     def test_upload_existing_user(self):
         user = User("test", tags=list("123"), location=Location(-10.22, 56.33),
                     radius=12, last_notified="12345678")
 
         with self.assertRaises(UserAlreadyExistsError):
-            self.user_comm.upload(user)
+            self.__user_comm.upload(user)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
-from src.location import Location, InvalidLocationError
+from models.location import Location
+from services.exceptions import InvalidLocationError
 import unittest
 
 
