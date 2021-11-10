@@ -1,0 +1,44 @@
+version: '3.9'
+services:
+  test_project:
+    container_name: test
+    image: junkiapp-service-test
+    build:
+      context: .
+      dockerfile: dockerfiles/service.dockerfile
+      target: test
+    env_file:
+      - ./env/service.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  rest_api:
+    container_name: rest_server
+    image: ofekikotrat/junkiapp-service
+    build:
+      context: .
+      dockerfile: dockerfiles/service.dockerfile
+      target: deploy
+    ports:
+      - '3000:3000'
+    env_file:
+      - ./env/service.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./:/junkia-service
+
+  mysql:
+    build:
+      context: .
+      dockerfile: dockerfiles/mysql.dockerfile
+    image: ofekikotrat/junkiapp-mysql
+    env_file:
+      - ./env/mysql.env
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost", "-p$MYSQL_ROOT_PASSWORD" ]
+      timeout: 60s
+      interval: 20s
+      retries: 10
