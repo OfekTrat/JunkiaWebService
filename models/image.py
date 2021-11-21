@@ -2,9 +2,11 @@ import base64
 from dataclasses import dataclass
 from typing import Dict
 
+from .imodel import IModel
+
 
 @dataclass
-class Image:
+class Image(IModel):
     hash: str
     data: bytes
 

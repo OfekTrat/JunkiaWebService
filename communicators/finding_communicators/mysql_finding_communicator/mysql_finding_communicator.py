@@ -5,7 +5,7 @@ from models.location import Location
 from .queries import Queries
 from services.finding_service import FindingNotFoundError
 from typing import List
-from communicators.interfaces import IFindingCommunicator
+from communicators.finding_communicators.ifinding_communicator import IFindingCommunicator
 
 
 class MySqlFindingCommunicator(MySQLCommunicatorAbs, IFindingCommunicator):

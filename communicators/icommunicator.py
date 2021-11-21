@@ -1,19 +1,17 @@
 from abc import abstractmethod
-from models.user import User
+from models.imodel import IModel
 from typing import Protocol, Union
-from models.image import Image
-from models.finding import Finding
 
 
-class IDBCommunicator(Protocol):
+class ICommunicator(Protocol):
     @classmethod
     @abstractmethod
-    def get(cls, object_id: str) -> Union[User, Finding, Image]:
+    def get(cls, object_id: str) -> Union[IModel]:
         raise NotImplementedError
 
     @classmethod
     @abstractmethod
-    def upload(cls, new_object: Union[User, Finding, Image]):
+    def upload(cls, new_object: Union[IModel]):
         raise NotImplementedError
 
     @classmethod

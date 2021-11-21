@@ -5,12 +5,12 @@ from flask import Response, Flask
 from models.finding import Finding
 from typing import List, Dict, Union
 from models.location import Location
-from app_initializer import AppInitializer
 from services.finding_service import FindingService
-from services.exceptions import FindingNotFoundError
+from services.exceptions.finding_exceptions import FindingNotFoundError
 from utils.mysql.mysql_executor import MySQLExecutor
-from communicators.interfaces import IFindingCommunicator
+from initializers.finding_initializer import FindingAppInitializer
 from communicators.finding_communicators import MySqlFindingCommunicator
+from communicators.finding_communicators.ifinding_communicator import IFindingCommunicator
 
 
 class TestFindingService(unittest.TestCase):
@@ -29,9 +29,7 @@ class TestFindingService(unittest.TestCase):
     @staticmethod
     def __get_app(finding_communicator: IFindingCommunicator) -> Flask:
         service = FindingService(finding_communicator)
-        app_init = AppInitializer()
-        app_init.add_finding_service(service)
-        return app_init.get_app()
+        return FindingAppInitializer.get_app(service)
 
     @staticmethod
     def __load_response(resp: Response) -> Dict[str, Union[List, Dict, str]]:

@@ -13,7 +13,8 @@ FROM base as test
 WORKDIR /junkia-service
 RUN pip install pytest==6.2.5
 COPY images /images
-CMD [ "pytest", "tests" ]
+RUN pytest tests
+#CMD [ "pytest", "tests" ]
 
 ##############  ##############
 

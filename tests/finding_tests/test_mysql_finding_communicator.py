@@ -4,7 +4,7 @@ from models.finding import Finding
 from utils.mysql.mysql_executor import MySQLExecutor
 from models.location import Location
 from communicators.finding_communicators import MySqlFindingCommunicator
-from services.exceptions import FindingNotFoundError
+from services.exceptions.finding_exceptions import FindingNotFoundError
 
 
 class TestFindingCommunicator(unittest.TestCase):

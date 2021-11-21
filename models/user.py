@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from typing import List, Any, Dict
-from models.location import Location
+from .imodel import IModel
+from .location import Location
 
 
 @dataclass
-class User:
+class User(IModel):
     id: str
     tags: List[str]
     location: Location

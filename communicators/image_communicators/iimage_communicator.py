@@ -1,7 +1,7 @@
 from typing import List, Union
 from abc import abstractmethod
-from ..interfaces import IDBCommunicator
-from ..interfaces.imultiple_delete_communicator import IMultipleDeleteCommunicator
+from communicators.interfaces import IDBCommunicator
+from communicators.interfaces.imultiple_delete_communicator import IMultipleDeleteCommunicator
 from models.finding import Finding
 from models.image import Image
 from models.user import User
