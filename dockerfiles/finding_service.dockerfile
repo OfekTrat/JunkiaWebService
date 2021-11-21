@@ -18,6 +18,7 @@ COPY /communicators/icommunicator.py ./communicators/icommunicator.py
 
 COPY /services/__init__.py ./services/__init__.py
 COPY /services/iservice.py ./services/iservice.py
+COPY /services/exceptions/__init__.py ./services/exceptions/__init__.py
 COPY /services/exceptions/location_exceptions.py ./services/exceptions/location_exceptions.py
 
 # ---------------------------------------------------- #
@@ -30,7 +31,6 @@ COPY /models/finding.py ./models/finding.py
 
 COPY /services/finding_service.py ./services/finding_service.py
 COPY /services/exceptions/finding_exceptions.py ./services/exceptions/finding_exceptions.py
-COPY /services/exceptions/__init__.py ./services/exceptions/__init__.py
 
 # ---------------------------------------------------- #
 
