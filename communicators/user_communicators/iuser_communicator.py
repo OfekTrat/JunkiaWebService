@@ -1,4 +1,4 @@
-from .idbcommunicator import IDBCommunicator
+from .icommunicator import ICommunicator
 from models.user import User
 from abc import abstractmethod
 

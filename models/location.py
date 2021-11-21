@@ -1,5 +1,5 @@
 from typing import Tuple, Dict, Union
-from services.exceptions import InvalidLocationError
+from services.exceptions.location_exceptions import InvalidLocationError
 
 
 class Location:

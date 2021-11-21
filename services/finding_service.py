@@ -1,11 +1,13 @@
 from flask import request
-from models import Location, Finding
-from .exceptions import FindingNotFoundError
-from communicators.interfaces import IFindingCommunicator
+from .iservice import IService
+from models.location import Location
+from models.finding import Finding
+from .exceptions.finding_exceptions import FindingNotFoundError
 from views.message_handler import MessageHandler
+from communicators.finding_communicators.ifinding_communicator import IFindingCommunicator
 
 
-class FindingService:
+class FindingService(IService):
     def __init__(self, finding_communicator: IFindingCommunicator):
         self.__finding_comm = finding_communicator
 

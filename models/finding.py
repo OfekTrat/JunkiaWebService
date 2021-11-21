@@ -1,10 +1,12 @@
 from typing import List, Union, Dict, Optional, Any
-from services.exceptions import WrongFindingInputError
+
+from .imodel import IModel
+from services.exceptions.finding_exceptions import WrongFindingInputError
 from datetime import datetime
 from models.location import Location
 
 
-class Finding:
+class Finding(IModel):
     def __init__(self, location: Location, tags: List[str], image_hash: Optional[str] = None,
                  finding_id: Optional[str] = None):
         self.__id = self.__set_id(finding_id)

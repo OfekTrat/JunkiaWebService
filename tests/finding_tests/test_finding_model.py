@@ -1,6 +1,6 @@
 from models.finding import Finding
-from services.exceptions import WrongFindingInputError
-from models import Location
+from services.exceptions.finding_exceptions import WrongFindingInputError
+from models.location import Location
 import unittest
 
 
