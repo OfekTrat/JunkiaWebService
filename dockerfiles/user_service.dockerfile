@@ -1,6 +1,6 @@
-                                                           FROM python:3.9 as base
+FROM python:3.9 as base
 
-WORKDIR /finding-service
+WORKDIR /user-service
 COPY requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
 

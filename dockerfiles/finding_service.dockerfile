@@ -6,7 +6,9 @@ RUN pip install -r requirements.txt
 
 COPY /views ./views
 COPY /utils ./utils
-COPY /initializers ./initializers
+
+COPY /initializers/__init__.py ./initializers/__init__.py
+COPY /initializers/app_initializer_abs.py ./initializers/app_initializer_abs.py
 
 COPY /models/imodel.py ./models/imodel.py
 COPY /models/__init__.py ./models/__init__.py
@@ -31,6 +33,8 @@ COPY /models/finding.py ./models/finding.py
 
 COPY /services/finding_service.py ./services/finding_service.py
 COPY /services/exceptions/finding_exceptions.py ./services/exceptions/finding_exceptions.py
+
+COPY /initializers/finding_initializer.py ./initializers/finding_initializer.py
 
 # ---------------------------------------------------- #
 
