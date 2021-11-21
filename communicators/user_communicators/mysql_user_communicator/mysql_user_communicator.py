@@ -3,7 +3,7 @@ from models.user import User
 from .queries import Queries
 from services.user_service import UserNotFoundError, UserAlreadyExistsError
 from utils.mysql.mysql_communicator_abs import MySQLCommunicatorAbs
-from communicators.interfaces import IUserCommunicator
+from communicators.user_communicators.iuser_communicator import IUserCommunicator
 from utils.mysql.mysql_executor import IExecutor
 
 

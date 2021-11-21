@@ -1,9 +1,9 @@
-from .icommunicator import ICommunicator
+from communicators.icommunicator import ICommunicator
 from models.user import User
 from abc import abstractmethod
 
 
-class IUserCommunicator(IDBCommunicator):
+class IUserCommunicator(ICommunicator):
     @classmethod
     @abstractmethod
     def update(cls, user: User):

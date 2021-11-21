@@ -1,8 +1,8 @@
 from flask import request
-from models import User
-from .exceptions import UserNotFoundError, UserAlreadyExistsError
+from models.user import User
+from .exceptions.user_exceptions import UserNotFoundError, UserAlreadyExistsError
 from views.message_handler import MessageHandler
-from communicators.interfaces import IUserCommunicator
+from communicators.user_communicators.iuser_communicator import IUserCommunicator
 
 
 class UserService:

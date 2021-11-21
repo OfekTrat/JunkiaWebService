@@ -3,13 +3,13 @@ import json
 import unittest
 from flask import Flask
 from random import randint
-from app_initializer import AppInitializer
-from communicators.interfaces import IUserCommunicator
+from initializers.user_initializer import UserAppInitializer
+from communicators.user_communicators.iuser_communicator import IUserCommunicator
 from utils.mysql.mysql_executor import MySQLExecutor
 from models.user import User
 from models.location import Location
 from communicators.user_communicators import MySqlUserCommunicator
-from services.exceptions import UserNotFoundError
+from services.exceptions.user_exceptions import UserNotFoundError
 from services.user_service import UserService
 
 
@@ -29,9 +29,7 @@ class TestUserApi(unittest.TestCase):
     @staticmethod
     def __create_app(user_communicator: IUserCommunicator) -> Flask:
         service = UserService(user_communicator)
-        app_init = AppInitializer()
-        app_init.add_user_service(service)
-        return app_init.get_app()
+        return UserAppInitializer.get_app(service)
 
     def test_add_api_user(self):
         user_as_json = {
