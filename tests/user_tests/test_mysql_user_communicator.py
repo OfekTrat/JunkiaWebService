@@ -5,7 +5,7 @@ from models.location import Location
 from models.user import User
 from utils.mysql.mysql_executor import MySQLExecutor
 from communicators.user_communicators import MySqlUserCommunicator
-from services.exceptions import UserNotFoundError, UserAlreadyExistsError
+from services.exceptions.user_exceptions import UserNotFoundError, UserAlreadyExistsError
 
 
 class TestUserCommunicator(unittest.TestCase):
