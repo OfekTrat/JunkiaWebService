@@ -14,6 +14,7 @@ COPY /models/location.py ./models/location.py
 
 COPY /communicators/interfaces ./communicators/interfaces
 COPY /communicators/__init__.py ./communicators/__init__.py
+COPY /communicators/icommunicator.py ./communicators/icommunicator.py
 
 COPY /services/__init__.py ./services/__init__.py
 COPY /services/iservice.py ./services/iservice.py
@@ -24,7 +25,6 @@ COPY /services/exceptions/location_exceptions.py ./services/exceptions/location_
 FROM base as finding-service-build
 COPY /mains/finding_main.py ./main.py
 COPY /communicators/finding_communicators ./communicators/finding_communicators
-COPY /communicators/icommunicator.py ./communicators/icommunicator.py
 
 COPY /models/finding.py ./models/finding.py
 
